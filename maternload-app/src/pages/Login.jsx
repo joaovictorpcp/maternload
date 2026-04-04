@@ -30,6 +30,7 @@ export function Login() {
     try {
       await signIn(email, password)
     } catch (err) {
+      alert(err.message || 'Erro ao efetuar o login!')
       setError(err.message === 'Invalid login credentials'
         ? 'E-mail ou senha inválidos.'
         : err.message || 'Erro ao fazer login. Tente novamente.')
