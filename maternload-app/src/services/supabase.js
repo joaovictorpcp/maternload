@@ -68,21 +68,16 @@ export const updateStudentInfo = async (studentId, updates) => {
 // ─── AUTH / INVITE ───────────────────────────────────────────
 
 export const inviteStudent = async (email, fullName, dueDate) => {
-  const { data, error } = await supabase.auth.admin.inviteUserByEmail(email, {
-    data: {
-      full_name: fullName,
-      role: 'gestante',
-    }
+  const response = await fetch('/api/invite', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, fullName, dueDate })
   })
-  if (error) throw error
 
-  // Atualiza o perfil criado pelo trigger com os dados adicionais
-  if (data?.user?.id) {
-    await supabase.from('profiles').update({
-      full_name: fullName,
-      due_date: dueDate,
-      role: 'gestante',
-    }).eq('id', data.user.id)
+  const data = await response.json()
+  
+  if (!response.ok) {
+    throw new Error(data.error || 'Erro ao enviar convite')
   }
 
   return data
