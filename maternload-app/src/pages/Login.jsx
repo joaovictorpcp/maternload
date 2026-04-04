@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Heart, FlaskConical } from 'lucide-react'
 
 export function Login() {
-  const { signIn, session } = useAuth()
+  const { signIn, profile, profileError } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -12,10 +12,16 @@ export function Login() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (session) {
+    if (profile) {
       navigate('/')
     }
-  }, [session, navigate])
+  }, [profile, navigate])
+
+  useEffect(() => {
+    if (profileError) {
+      setError(`Erro no Perfil: ${profileError}`)
+    }
+  }, [profileError])
 
   const handleSubmit = async (e) => {
     e.preventDefault()

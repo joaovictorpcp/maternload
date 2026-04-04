@@ -34,12 +34,16 @@ export function AuthProvider({ children }) {
     return () => subscription.unsubscribe()
   }, [])
 
+  const [profileError, setProfileError] = useState(null)
+
   const loadProfile = async (userId) => {
     try {
+      setProfileError(null)
       const data = await getProfile(userId)
       setProfile(data)
     } catch (err) {
       console.error('Erro ao carregar perfil:', err)
+      setProfileError(err.message || 'Erro de permissão no banco de dados (RLS).')
     } finally {
       setLoading(false)
     }
@@ -72,6 +76,7 @@ export function AuthProvider({ children }) {
     signIn,
     signOut,
     refreshProfile,
+    profileError,
   }
 
   return (
