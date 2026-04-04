@@ -1,0 +1,86 @@
+{
+  "hash": "676b84d3",
+  "configHash": "9104fa63",
+  "lockfileHash": "a763a0d8",
+  "browserHash": "a5ea0388",
+  "optimized": {
+    "@react-pdf/renderer": {
+      "src": "../../node_modules/@react-pdf/renderer/lib/react-pdf.browser.js",
+      "file": "@react-pdf_renderer.js",
+      "fileHash": "925d974b",
+      "needsInterop": false
+    },
+    "@supabase/supabase-js": {
+      "src": "../../node_modules/@supabase/supabase-js/dist/index.mjs",
+      "file": "@supabase_supabase-js.js",
+      "fileHash": "d277613f",
+      "needsInterop": false
+    },
+    "date-fns": {
+      "src": "../../node_modules/date-fns/index.js",
+      "file": "date-fns.js",
+      "fileHash": "d0030b3d",
+      "needsInterop": false
+    },
+    "date-fns/locale": {
+      "src": "../../node_modules/date-fns/locale.js",
+      "file": "date-fns_locale.js",
+      "fileHash": "9969b46c",
+      "needsInterop": false
+    },
+    "lucide-react": {
+      "src": "../../node_modules/lucide-react/dist/esm/lucide-react.js",
+      "file": "lucide-react.js",
+      "fileHash": "ce3f3bec",
+      "needsInterop": false
+    },
+    "react-dom/client": {
+      "src": "../../node_modules/react-dom/client.js",
+      "file": "react-dom_client.js",
+      "fileHash": "ac3b9c26",
+      "needsInterop": true
+    },
+    "react-router-dom": {
+      "src": "../../node_modules/react-router-dom/dist/index.mjs",
+      "file": "react-router-dom.js",
+      "fileHash": "ccba9437",
+      "needsInterop": false
+    },
+    "react": {
+      "src": "../../node_modules/react/index.js",
+      "file": "react.js",
+      "fileHash": "34f4a9c2",
+      "needsInterop": true
+    },
+    "react/jsx-dev-runtime": {
+      "src": "../../node_modules/react/jsx-dev-runtime.js",
+      "file": "react_jsx-dev-runtime.js",
+      "fileHash": "b2f3c006",
+      "needsInterop": true
+    },
+    "recharts": {
+      "src": "../../node_modules/recharts/es6/index.js",
+      "file": "recharts.js",
+      "fileHash": "00dc20f8",
+      "needsInterop": false
+    }
+  },
+  "chunks": {
+    "isSameWeek-DP_HWDnq": {
+      "file": "isSameWeek-DP_HWDnq.js",
+      "isDynamicEntry": false
+    },
+    "react-Bxe9Wa8h": {
+      "file": "react-Bxe9Wa8h.js",
+      "isDynamicEntry": false
+    },
+    "react-dom-D_wkPaNw": {
+      "file": "react-dom-D_wkPaNw.js",
+      "isDynamicEntry": false
+    },
+    "tslib.es6-BlDJHGaS": {
+      "file": "tslib.es6-BlDJHGaS.js",
+      "isDynamicEntry": false
+    }
+  }
+}
