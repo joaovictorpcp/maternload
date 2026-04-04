@@ -10,24 +10,49 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     let mounted = true
+    let subscription = null
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return
-        setSession(session)
+    const initAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) throw error
         
-        if (session?.user) {
-          await loadProfile(session.user.id)
-        } else {
-          setProfile(null)
-          setLoading(false)
+        if (mounted) {
+          setSession(data.session)
+          if (data.session?.user) {
+            await loadProfile(data.session.user.id)
+          } else {
+            setLoading(false)
+          }
         }
+      } catch (err) {
+        console.error('Erro no getSession:', err)
+        if (mounted) setLoading(false)
       }
-    )
+
+      // Apenas escuta POR MUDANÇAS após a primeira leitura, evitando "Lock stolen"!
+      if (mounted) {
+        const { data } = supabase.auth.onAuthStateChange(
+          async (event, session) => {
+            if (!mounted || event === 'INITIAL_SESSION') return
+            setSession(session)
+            if (session?.user) {
+              await loadProfile(session.user.id)
+            } else {
+              setProfile(null)
+              setLoading(false)
+            }
+          }
+        )
+        subscription = data.subscription
+      }
+    }
+
+    initAuth()
 
     return () => {
       mounted = false
-      subscription.unsubscribe()
+      if (subscription) subscription.unsubscribe()
     }
   }, [])
 
