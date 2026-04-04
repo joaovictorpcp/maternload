@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Heart, FlaskConical } from 'lucide-react'
 
 export function Login() {
-  const { signIn, signInDemo } = useAuth()
+  const { signIn } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -143,61 +143,6 @@ export function Login() {
             Acesso restrito. Para obter acesso, entre em contato com seu personal trainer.
           </p>
         </div>
-
-        {/* Demo Mode */}
-        <div style={{
-          marginTop: 'var(--space-5)',
-          background: 'rgba(255,255,255,0.12)',
-          backdropFilter: 'blur(8px)',
-          borderRadius: 'var(--radius-xl)',
-          padding: 'var(--space-5)',
-          border: '1px solid rgba(255,255,255,0.2)',
-        }}>
-          <div style={{
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            gap: 'var(--space-2)', marginBottom: 'var(--space-4)'
-          }}>
-            <FlaskConical size={14} color="rgba(255,255,255,0.7)" />
-            <span style={{ fontSize: 'var(--font-size-xs)', color: 'rgba(255,255,255,0.7)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em' }}>
-              Modo Demo — Teste sem Supabase
-            </span>
-          </div>
-          <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
-            <button
-              id="demo-personal-btn"
-              onClick={() => { signInDemo('personal'); navigate('/personal') }}
-              style={{
-                flex: 1, padding: '0.75rem', borderRadius: 'var(--radius-md)',
-                background: 'rgba(255,255,255,0.15)', border: '1.5px solid rgba(255,255,255,0.3)',
-                color: 'white', fontWeight: 700, fontSize: 'var(--font-size-sm)', cursor: 'pointer',
-                transition: 'all 0.2s ease', display: 'flex', flexDirection: 'column',
-                alignItems: 'center', gap: '4px',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-            >
-              <span style={{ fontSize: '1.25rem' }}>🏋</span>
-              Personal Trainer
-            </button>
-            <button
-              id="demo-student-btn"
-              onClick={() => { signInDemo('gestante'); navigate('/student') }}
-              style={{
-                flex: 1, padding: '0.75rem', borderRadius: 'var(--radius-md)',
-                background: 'rgba(255,255,255,0.15)', border: '1.5px solid rgba(255,255,255,0.3)',
-                color: 'white', fontWeight: 700, fontSize: 'var(--font-size-sm)', cursor: 'pointer',
-                transition: 'all 0.2s ease', display: 'flex', flexDirection: 'column',
-                alignItems: 'center', gap: '4px',
-              }}
-              onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.25)'}
-              onMouseLeave={e => e.currentTarget.style.background = 'rgba(255,255,255,0.15)'}
-            >
-              <span style={{ fontSize: '1.25rem' }}>🤰</span>
-              Visão da Gestante
-            </button>
-          </div>
-        </div>
-
       </div>
     </div>
   )

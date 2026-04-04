@@ -126,7 +126,7 @@ function AlertToggle({ label, emoji, checked, onChange, id }) {
 }
 
 export function WorkoutLog() {
-  const { profile, isDemo } = useAuth()
+  const { profile } = useAuth()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
@@ -169,13 +169,6 @@ export function WorkoutLog() {
     setError('')
     setLoading(true)
     try {
-      // Modo demo: salva localmente sem Supabase
-      if (isDemo) {
-        await new Promise(r => setTimeout(r, 600)) // simula latência
-        setSuccess(true)
-        setTimeout(() => navigate('/student'), 2000)
-        return
-      }
       await insertDailyRecord({
         student_id: profile.id,
         workout_date: form.workout_date,

@@ -1,18 +1,22 @@
 import React from 'react'
 import { useNavigate } from 'react-router-dom'
 import { PersonalLayout } from '../../components/layout/PersonalLayout'
-import { useAuth } from '../../contexts/AuthContext'
-import { DEMO_STUDENTS, DEMO_RECORDS_MAP } from '../../mockData'
+import { getAllStudents, getStudentRecords } from '../../services/supabase'
+import { useEffect, useState } from 'react'
 import { ClinicalReportButton } from '../../components/pdf/ClinicalReportButton'
 import { useMetrics } from '../../hooks/useMetrics'
 import { useGestationalAge } from '../../hooks/useGestationalAge'
 import { FileText, ExternalLink } from 'lucide-react'
 
 function StudentReportRow({ student }) {
-  const records = DEMO_RECORDS_MAP[student.id] || []
+  const [records, setRecords] = useState([])
   const metrics = useMetrics(records)
   const age = useGestationalAge(student.due_date)
   const navigate = useNavigate()
+
+  useEffect(() => {
+    getStudentRecords(student.id).then(d => setRecords(d || []))
+  }, [student.id])
 
   return (
     <div style={{
@@ -46,8 +50,12 @@ function StudentReportRow({ student }) {
 }
 
 export function PersonalReports() {
-  const { isDemo } = useAuth()
-  const students = isDemo ? DEMO_STUDENTS : []
+  const [students, setStudents] = useState([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    getAllStudents().then(d => setStudents(d || [])).finally(() => setLoading(false))
+  }, [])
 
   return (
     <PersonalLayout>
@@ -58,22 +66,15 @@ export function PersonalReports() {
         </div>
       </div>
 
-      {!isDemo && (
+      {loading ? (
+        <div className="loading-screen" style={{ minHeight: '40vh' }}><div className="spinner" /></div>
+      ) : students.length === 0 ? (
         <div className="card" style={{ textAlign: 'center', padding: 'var(--space-12)', color: 'var(--color-text-muted)' }}>
           <FileText size={40} style={{ margin: '0 auto var(--space-4)', opacity: 0.3 }} />
-          <p>Configure o Supabase para ver as gestantes ativas aqui.</p>
+          <p>Nenhuma gestante cadastrada.</p>
         </div>
-      )}
-
-      {isDemo && (
+      ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-          <div style={{
-            padding: 'var(--space-3) var(--space-4)', borderRadius: 'var(--radius-md)',
-            background: 'rgba(46,139,122,0.08)', fontSize: 'var(--font-size-sm)',
-            color: 'var(--color-secondary)', fontWeight: 500, marginBottom: 'var(--space-2)'
-          }}>
-            💡 No modo demo, o PDF é gerado com dados fictícios reais — você pode baixar e ver o layout do laudo.
-          </div>
           {students.map(s => <StudentReportRow key={s.id} student={s} />)}
         </div>
       )}

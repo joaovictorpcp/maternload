@@ -1,7 +1,6 @@
 import React from 'react'
 import { PersonalLayout } from '../../components/layout/PersonalLayout'
 import { useAuth } from '../../contexts/AuthContext'
-import { DEMO_STUDENTS } from '../../mockData'
 import { getAllStudents } from '../../services/supabase'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -47,15 +46,13 @@ function StudentRow({ student }) {
 }
 
 export function PersonalStudents() {
-  const { isDemo } = useAuth()
   const [students, setStudents] = useState([])
   const [loading, setLoading] = useState(true)
   const [showInvite, setShowInvite] = useState(false)
 
   useEffect(() => {
-    if (isDemo) { setStudents(DEMO_STUDENTS); setLoading(false); return }
     getAllStudents().then(d => setStudents(d || [])).finally(() => setLoading(false))
-  }, [isDemo])
+  }, [])
 
   return (
     <PersonalLayout>
@@ -64,11 +61,9 @@ export function PersonalStudents() {
           <h1 className="page-title">Gestantes</h1>
           <p className="page-subtitle">{students.length} gestant{students.length !== 1 ? 'es' : 'e'} cadastrada{students.length !== 1 ? 's' : ''}</p>
         </div>
-        {!isDemo && (
-          <button className="btn btn-secondary" onClick={() => setShowInvite(true)}>
-            <Plus size={16} /> Adicionar Gestante
-          </button>
-        )}
+        <button className="btn btn-secondary" onClick={() => setShowInvite(true)}>
+          <Plus size={16} /> Adicionar Gestante
+        </button>
       </div>
 
       {loading ? (

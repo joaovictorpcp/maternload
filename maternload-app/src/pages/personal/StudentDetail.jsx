@@ -16,7 +16,6 @@ import { format, parseISO, subMonths } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { updateStudentStatus, updateStudentInfo } from '../../services/supabase'
 import { useAuth } from '../../contexts/AuthContext'
-import { DEMO_RECORDS_MAP, DEMO_STUDENTS } from '../../mockData'
 
 function AlertDot({ active }) {
   return (
@@ -48,7 +47,6 @@ function HooperIndicator({ label, value }) {
 export function StudentDetail() {
   const { studentId } = useParams()
   const navigate = useNavigate()
-  const { isDemo } = useAuth()
   const [student, setStudent] = useState(null)
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(true)
@@ -60,15 +58,6 @@ export function StudentDetail() {
   }, [studentId])
 
   const loadData = async () => {
-    if (isDemo) {
-      const demoStudent = DEMO_STUDENTS.find(s => s.id === studentId) || DEMO_STUDENTS[0]
-      const demoRecords = DEMO_RECORDS_MAP[demoStudent.id] || []
-      setStudent(demoStudent)
-      setRecords(demoRecords)
-      setNewDueDate(demoStudent.due_date || '')
-      setLoading(false)
-      return
-    }
     try {
       const threeMonthsAgo = subMonths(new Date(), 3).toISOString().split('T')[0]
       const [stud, recs] = await Promise.all([

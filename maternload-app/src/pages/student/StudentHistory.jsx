@@ -5,7 +5,6 @@ import { StudentLayout } from '../../components/layout/StudentLayout'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react'
-import { DEMO_STUDENT_SELF_RECORDS } from '../../mockData'
 
 function WorkoutTypeIcon({ type }) {
   const map = { Cardio: '🏃', Força: '💪', Misto: '⚡' }
@@ -13,18 +12,13 @@ function WorkoutTypeIcon({ type }) {
 }
 
 export function StudentHistory() {
-  const { profile, isDemo } = useAuth()
+  const { profile } = useAuth()
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (isDemo) {
-      setRecords(DEMO_STUDENT_SELF_RECORDS)
-      setLoading(false)
-      return
-    }
     if (profile?.id) loadRecords()
-  }, [profile, isDemo])
+  }, [profile])
 
   const loadRecords = async () => {
     try {

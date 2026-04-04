@@ -9,7 +9,6 @@ import { AlertTriangle, Plus, Users, TrendingUp, Clock, ChevronRight } from 'luc
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
 import { useAuth } from '../../contexts/AuthContext'
-import { DEMO_STUDENTS, DEMO_ALERTS } from '../../mockData'
 
 function StudentCard({ student, hasAlert }) {
   const age = useGestationalAge(student.due_date)
@@ -86,19 +85,12 @@ export function PersonalDashboard() {
   const [alerts, setAlerts] = useState([])
   const [loading, setLoading] = useState(true)
   const [showInvite, setShowInvite] = useState(false)
-  const { isDemo } = useAuth()
 
   useEffect(() => {
     loadData()
   }, [])
 
   const loadData = async () => {
-    if (isDemo) {
-      setStudents(DEMO_STUDENTS)
-      setAlerts(DEMO_ALERTS)
-      setLoading(false)
-      return
-    }
     try {
       const [studs, alertData] = await Promise.all([
         getAllStudents(),
