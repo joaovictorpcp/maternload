@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { Heart, FlaskConical } from 'lucide-react'
 
 export function Login() {
-  const { signIn, profile } = useAuth()
+  const { signIn, session } = useAuth()
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -12,10 +12,10 @@ export function Login() {
   const [error, setError] = useState('')
 
   useEffect(() => {
-    if (profile) {
+    if (session) {
       navigate('/')
     }
-  }, [profile, navigate])
+  }, [session, navigate])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -27,6 +27,7 @@ export function Login() {
       setError(err.message === 'Invalid login credentials'
         ? 'E-mail ou senha inválidos.'
         : err.message || 'Erro ao fazer login. Tente novamente.')
+    } finally {
       setLoading(false)
     }
   }
