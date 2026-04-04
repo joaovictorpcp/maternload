@@ -3,7 +3,7 @@ import { supabase } from '../../supabaseClient'
 import { X, Mail, User, Calendar, Send } from 'lucide-react'
 
 export function InviteStudentModal({ onClose, onSuccess }) {
-  const [form, setForm] = useState({ full_name: '', email: '', due_date: '' })
+  const [form, setForm] = useState({ full_name: '', email: '', gestationalWeeks: '', gestationalDays: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -17,6 +17,19 @@ export function InviteStudentModal({ onClose, onSuccess }) {
     setLoading(true)
 
     try {
+      // Calcula a DPP baseada na idade gestacional
+      let due_date = null;
+      if (form.gestationalWeeks !== '' || form.gestationalDays !== '') {
+        const weeks = parseInt(form.gestationalWeeks) || 0;
+        const days = parseInt(form.gestationalDays) || 0;
+        const totalDays = weeks * 7 + days;
+        const daysLeft = 280 - totalDays;
+        
+        const dpp = new Date();
+        dpp.setDate(dpp.getDate() + daysLeft);
+        due_date = dpp.toISOString().split('T')[0];
+      }
+
       // Convida via Supabase Admin (Magic Link)
       const { data, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(
         form.email,
@@ -29,7 +42,7 @@ export function InviteStudentModal({ onClose, onSuccess }) {
       if (data?.user?.id) {
         await supabase.from('profiles').update({
           full_name: form.full_name,
-          due_date: form.due_date || null,
+          due_date: due_date,
           role: 'gestante',
         }).eq('id', data.user.id)
       }
@@ -100,17 +113,58 @@ export function InviteStudentModal({ onClose, onSuccess }) {
           <div className="form-group">
             <label className="form-label">
               <span style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-                <Calendar size={14} /> Data Prevista do Parto (DPP)
+                <Calendar size={14} /> Idade Gestacional Atual (Semanas e Dias)
               </span>
             </label>
-            <input
-              type="date"
-              name="due_date"
-              className="form-input"
-              value={form.due_date}
-              onChange={handleChange}
-            />
-            <span className="form-sublabel">Opcional — pode ser adicionada depois no perfil da aluna.</span>
+            <div style={{ display: 'flex', gap: 'var(--space-3)' }}>
+              <div style={{ flex: 1 }}>
+                <input
+                  type="number"
+                  name="gestationalWeeks"
+                  className="form-input"
+                  placeholder="Ex: 20 (Semanas)"
+                  min="0"
+                  max="42"
+                  value={form.gestationalWeeks}
+                  onChange={handleChange}
+                />
+              </div>
+              <div style={{ flex: 1 }}>
+                <input
+                  type="number"
+                  name="gestationalDays"
+                  className="form-input"
+                  placeholder="Ex: 3 (Dias)"
+                  min="0"
+                  max="6"
+                  value={form.gestationalDays}
+                  onChange={handleChange}
+                />
+              </div>
+            </div>
+            
+            {(form.gestationalWeeks !== '' || form.gestationalDays !== '') && (
+              <span style={{ 
+                marginTop: 'var(--space-2)', 
+                display: 'block', 
+                fontSize: 'var(--font-size-sm)',
+                fontWeight: 600,
+                color: 'var(--color-primary)' 
+              }}>
+                ↳ DPP Estimada: {
+                  (() => {
+                    const weeks = parseInt(form.gestationalWeeks) || 0;
+                    const days = parseInt(form.gestationalDays) || 0;
+                    const totalDays = weeks * 7 + days;
+                    const daysLeft = 280 - totalDays;
+                    const dpp = new Date();
+                    dpp.setDate(dpp.getDate() + daysLeft);
+                    return dpp.toLocaleDateString('pt-BR');
+                  })()
+                }
+              </span>
+            )}
+            <span className="form-sublabel">Opcional — a Data Prevista do Parto será calculada automaticamente.</span>
           </div>
 
           {error && (
