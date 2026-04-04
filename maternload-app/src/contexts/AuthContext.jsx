@@ -20,12 +20,11 @@ export function AuthProvider({ children }) {
           setSession(data.session)
           if (data.session?.user) {
             await loadProfile(data.session.user.id)
-          } else {
-            setLoading(false)
           }
         }
       } catch (err) {
         console.error('Falha crítica ao carregar sessão:', err)
+      } finally {
         if (mounted) setLoading(false)
       }
     }
