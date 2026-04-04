@@ -9,18 +9,32 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Sessão real do Supabase
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session)
-      if (session?.user) {
-        loadProfile(session.user.id)
-      } else {
-        setLoading(false)
+    let mounted = true
+
+    const initAuth = async () => {
+      try {
+        const { data, error } = await supabase.auth.getSession()
+        if (error) throw error
+        
+        if (mounted) {
+          setSession(data.session)
+          if (data.session?.user) {
+            await loadProfile(data.session.user.id)
+          } else {
+            setLoading(false)
+          }
+        }
+      } catch (err) {
+        console.error('Falha crítica ao carregar sessão:', err)
+        if (mounted) setLoading(false)
       }
-    })
+    }
+
+    initAuth()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (_event, session) => {
+        if (!mounted) return
         setSession(session)
         if (session?.user) {
           await loadProfile(session.user.id)
@@ -31,7 +45,10 @@ export function AuthProvider({ children }) {
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      mounted = false
+      subscription.unsubscribe()
+    }
   }, [])
 
   const [profileError, setProfileError] = useState(null)
