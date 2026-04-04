@@ -11,30 +11,11 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     let mounted = true
 
-    const initAuth = async () => {
-      try {
-        const { data, error } = await supabase.auth.getSession()
-        if (error) throw error
-        
-        if (mounted) {
-          setSession(data.session)
-          if (data.session?.user) {
-            await loadProfile(data.session.user.id)
-          }
-        }
-      } catch (err) {
-        console.error('Falha crítica ao carregar sessão:', err)
-      } finally {
-        if (mounted) setLoading(false)
-      }
-    }
-
-    initAuth()
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (_event, session) => {
+      async (event, session) => {
         if (!mounted) return
         setSession(session)
+        
         if (session?.user) {
           await loadProfile(session.user.id)
         } else {
