@@ -135,9 +135,9 @@ export function WorkoutLog() {
   const [form, setForm] = useState({
     workout_date: new Date().toISOString().split('T')[0],
     workout_type: 'Misto',
-    cardio_minutes: 0,
+    cardio_minutes: '',
     cardio_description: '',
-    strength_minutes: 0,
+    strength_minutes: '',
     avg_heart_rate: '',
     rpe: 5,
     talk_test: true,
@@ -154,7 +154,7 @@ export function WorkoutLog() {
     notes: '',
   })
 
-  const totalMinutes = form.cardio_minutes + form.strength_minutes
+  const totalMinutes = (Number(form.cardio_minutes) || 0) + (Number(form.strength_minutes) || 0)
 
   const setField = (name, value) => setForm(prev => ({ ...prev, [name]: value }))
 
@@ -173,9 +173,9 @@ export function WorkoutLog() {
         student_id: profile.id,
         workout_date: form.workout_date,
         workout_type: form.workout_type,
-        cardio_minutes: form.cardio_minutes,
+        cardio_minutes: Number(form.cardio_minutes) || 0,
         cardio_description: form.cardio_description || null,
-        strength_minutes: form.strength_minutes,
+        strength_minutes: Number(form.strength_minutes) || 0,
         avg_heart_rate: form.avg_heart_rate ? Number(form.avg_heart_rate) : null,
         rpe: form.rpe,
         talk_test: form.talk_test,
@@ -263,7 +263,15 @@ export function WorkoutLog() {
                     key={type}
                     type="button"
                     id={`workout-type-${type.toLowerCase()}`}
-                    onClick={() => setField('workout_type', type)}
+                    onClick={() => {
+                      setField('workout_type', type)
+                      // Limpa os campos que não serão utilizados
+                      if (type === 'Cardio') setField('strength_minutes', '')
+                      if (type === 'Força') {
+                        setField('cardio_minutes', '')
+                        setField('cardio_description', '')
+                      }
+                    }}
                     style={{
                       flex: 1, padding: 'var(--space-3)', borderRadius: 'var(--radius-md)',
                       border: `2px solid ${form.workout_type === type ? 'var(--color-secondary)' : 'var(--color-border)'}`,
@@ -285,31 +293,35 @@ export function WorkoutLog() {
             <div style={{ fontWeight: 700, marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
               <Heart size={16} color="var(--color-secondary)" /> Duração do Treino
             </div>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
-              <div className="form-group">
-                <label className="form-label" htmlFor="cardio-minutes">Cardio (min)</label>
-                <input
-                  id="cardio-minutes"
-                  type="number"
-                  min="0"
-                  max="180"
-                  className="form-input"
-                  value={form.cardio_minutes}
-                  onChange={e => setField('cardio_minutes', Math.max(0, Number(e.target.value)))}
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="strength-minutes">Força (min)</label>
-                <input
-                  id="strength-minutes"
-                  type="number"
-                  min="0"
-                  max="180"
-                  className="form-input"
-                  value={form.strength_minutes}
-                  onChange={e => setField('strength_minutes', Math.max(0, Number(e.target.value)))}
-                />
-              </div>
+            <div style={{ display: 'grid', gridTemplateColumns: form.workout_type === 'Misto' ? '1fr 1fr' : '1fr', gap: 'var(--space-4)' }}>
+              {(form.workout_type === 'Cardio' || form.workout_type === 'Misto') && (
+                <div className="form-group">
+                  <label className="form-label" htmlFor="cardio-minutes">Cardio (min)</label>
+                  <input
+                    id="cardio-minutes"
+                    type="number"
+                    min="0"
+                    max="180"
+                    className="form-input"
+                    value={form.cardio_minutes}
+                    onChange={e => setField('cardio_minutes', e.target.value)}
+                  />
+                </div>
+              )}
+              {(form.workout_type === 'Força' || form.workout_type === 'Misto') && (
+                <div className="form-group">
+                  <label className="form-label" htmlFor="strength-minutes">Força (min)</label>
+                  <input
+                    id="strength-minutes"
+                    type="number"
+                    min="0"
+                    max="180"
+                    className="form-input"
+                    value={form.strength_minutes}
+                    onChange={e => setField('strength_minutes', e.target.value)}
+                  />
+                </div>
+              )}
             </div>
             
             <div style={{
