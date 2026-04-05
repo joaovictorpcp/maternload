@@ -383,19 +383,31 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
           <Text style={styles.appendixTitle}>Glossário de Siglas e Termos</Text>
           <View style={styles.glossaryItem} wrap={false}>
             <Text style={styles.glossaryTerm}>ACOG</Text>
-            <Text style={styles.glossaryDesc}>Diretriz internacional sobre exercícios na gestação (150 min/semana moderado).</Text>
+            <Text style={styles.glossaryDesc}>American College of Obstetricians and Gynecologists (Colégio Americano de Obstetras e Ginecologistas). A recomendação atual é de 150 minutos semanais de atividade física moderada.</Text>
           </View>
           <View style={styles.glossaryItem} wrap={false}>
-            <Text style={styles.glossaryTerm}>RPE/sRPE</Text>
-            <Text style={styles.glossaryDesc}>Percepção de Esforço e Carga Interna. Mede o impacto fisiológico do treino.</Text>
+            <Text style={styles.glossaryTerm}>DPP</Text>
+            <Text style={styles.glossaryDesc}>Data Prevista do Parto. Calculada baseada na data da última menstruação ou idade gestacional ultrassonográfica, assumindo 40 semanas de gestação.</Text>
+          </View>
+          <View style={styles.glossaryItem} wrap={false}>
+            <Text style={styles.glossaryTerm}>RPE</Text>
+            <Text style={styles.glossaryDesc}>Percepção Subjetiva de Esforço (Rating of Perceived Exertion). Escala validada científicamente de 0 a 10 que quantifica o quão exaustivo foi um exercício.</Text>
+          </View>
+          <View style={styles.glossaryItem} wrap={false}>
+            <Text style={styles.glossaryTerm}>sRPE</Text>
+            <Text style={styles.glossaryDesc}>Carga Interna da Sessão (Session RPE). Obtido multiplicando-se o RPE pela duração da sessão em minutos. Reflete o impacto fisiológico gerado (medido em "u.a." — Unidades Arbitrárias).</Text>
           </View>
           <View style={styles.glossaryItem} wrap={false}>
             <Text style={styles.glossaryTerm}>Monotonia</Text>
-            <Text style={styles.glossaryDesc}>Variabilidade da carga. Valores acima de 2.0 indicam risco de overtraining.</Text>
+            <Text style={styles.glossaryDesc}>Mede a variabilidade da carga de treinamento durante os dias. Acima de 2.0 indica baixa variabilidade (treinos monotonos), aumentando o risco de lesões, overtraining ou má adaptação ao estímulo.</Text>
           </View>
           <View style={styles.glossaryItem} wrap={false}>
-            <Text style={styles.glossaryTerm}>Hooper</Text>
-            <Text style={styles.glossaryDesc}>Índice de bem-estar baseado em sono, estresse, fadiga e dor muscular.</Text>
+            <Text style={styles.glossaryTerm}>Strain</Text>
+            <Text style={styles.glossaryDesc}>Tensão global do treinamento. Calculado pela multiplicação da Carga Total x Monotonia. Reflete o quão estressante tem sido a rotina imposta.</Text>
+          </View>
+          <View style={styles.glossaryItem} wrap={false}>
+            <Text style={styles.glossaryTerm}>Hooper Index</Text>
+            <Text style={styles.glossaryDesc}>Índice validado para avaliar o bem-estar nos domínios: Qualidade do Sono, Nível de Estresse, Nível de Fadiga e Dor Muscular de Início Tardio (DMIT).</Text>
           </View>
         </View>
 
