@@ -242,10 +242,16 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
                   <Text style={styles.infoValue}>{student.circumferences.hip} cm</Text>
                 </View>
               )}
-              {student.circumferences?.thigh && (
+              {student.circumferences?.thighRight && (
                 <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Coxa</Text>
-                  <Text style={styles.infoValue}>{student.circumferences.thigh} cm</Text>
+                  <Text style={styles.infoLabel}>Coxa Dir.</Text>
+                  <Text style={styles.infoValue}>{student.circumferences.thighRight} cm</Text>
+                </View>
+              )}
+              {student.circumferences?.thighLeft && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Coxa Esq.</Text>
+                  <Text style={styles.infoValue}>{student.circumferences.thighLeft} cm</Text>
                 </View>
               )}
               {student.circumferences?.thorax && (

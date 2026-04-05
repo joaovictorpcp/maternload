@@ -3,20 +3,24 @@ import { StudentLayout } from '../../components/layout/StudentLayout'
 import { useAuth } from '../../contexts/AuthContext'
 import { updateStudentInfo } from '../../services/supabase'
 import { Save, User, Ruler, FileText, Calendar } from 'lucide-react'
+import { useGestationalAge } from '../../hooks/useGestationalAge'
 
 export function StudentSettings() {
   const { profile, refreshProfile } = useAuth()
+  const age = useGestationalAge(profile?.due_date)
   
   const [form, setForm] = useState({
     full_name: profile?.full_name || '',
     birth_date: profile?.birth_date || '',
-    due_date: profile?.due_date || '',
+    gestationalWeeks: age.isValid ? age.weeks : '',
+    gestationalDays: age.isValid ? age.days : '',
     weight: profile?.weight || '',
     height: profile?.height || '',
     circumferences: profile?.circumferences || {
       abdomen: '',
       hip: '',
-      thigh: '',
+      thighRight: '',
+      thighLeft: '',
       thorax: ''
     }
   })
@@ -41,10 +45,22 @@ export function StudentSettings() {
     setError('')
     setSuccess(false)
     try {
+      let calculatedDueDate = profile?.due_date || null;
+      if (form.gestationalWeeks !== '' || form.gestationalDays !== '') {
+        const weeks = parseInt(form.gestationalWeeks) || 0;
+        const days = parseInt(form.gestationalDays) || 0;
+        const totalDays = weeks * 7 + days;
+        const daysLeft = 280 - totalDays;
+        
+        const dpp = new Date();
+        dpp.setDate(dpp.getDate() + daysLeft);
+        calculatedDueDate = dpp.toISOString().split('T')[0];
+      }
+
       await updateStudentInfo(profile.id, {
         full_name: form.full_name,
         birth_date: form.birth_date || null,
-        due_date: form.due_date || null,
+        due_date: calculatedDueDate,
         weight: form.weight ? Number(form.weight) : null,
         height: form.height ? Number(form.height) : null,
         circumferences: form.circumferences
@@ -104,16 +120,45 @@ export function StudentSettings() {
                   />
                 </div>
                 
-                <div className="form-group">
-                  <label className="form-label" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                    <Calendar size={14} /> Data Prevista (DPP)
-                  </label>
-                  <input
-                    type="date"
-                    className="form-input"
-                    value={form.due_date}
-                    onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))}
-                  />
+                <div className="form-group" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)' }}>
+                  <div style={{ paddingRight: '4px' }}>
+                    <label className="form-label" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                      <Calendar size={14} /> Semanas
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="42"
+                      className="form-input"
+                      value={form.gestationalWeeks}
+                      placeholder="Semanas"
+                      onChange={e => setForm(p => ({ ...p, gestationalWeeks: e.target.value }))}
+                    />
+                  </div>
+                  <div>
+                    <label className="form-label" style={{ visibility: 'hidden' }}>
+                      Dias
+                    </label>
+                    <input
+                      type="number"
+                      min="0"
+                      max="6"
+                      className="form-input"
+                      value={form.gestationalDays}
+                      placeholder="Dias"
+                      onChange={e => setForm(p => ({ ...p, gestationalDays: e.target.value }))}
+                    />
+                  </div>
+                  {(form.gestationalWeeks !== '' || form.gestationalDays !== '') && (
+                    <span style={{ 
+                      gridColumn: '1 / -1',
+                      marginTop: 'var(--space-2)', 
+                      fontSize: 'var(--font-size-xs)',
+                      color: 'var(--color-primary)' 
+                    }}>
+                      ↳ DPP calculada automaticamente
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
@@ -198,11 +243,23 @@ export function StudentSettings() {
                   type="number"
                   step="0.1"
                   className="form-input"
-                  placeholder="Coxa"
-                  value={form.circumferences?.thigh || ''}
-                  onChange={e => handleCircumferenceChange('thigh', e.target.value)}
+                  placeholder="Coxa Direita"
+                  value={form.circumferences?.thighRight || ''}
+                  onChange={e => handleCircumferenceChange('thighRight', e.target.value)}
                 />
-                <span className="form-sublabel">Coxa</span>
+                <span className="form-sublabel">Coxa Direita</span>
+              </div>
+              
+              <div className="form-group">
+                <input
+                  type="number"
+                  step="0.1"
+                  className="form-input"
+                  placeholder="Coxa Esquerda"
+                  value={form.circumferences?.thighLeft || ''}
+                  onChange={e => handleCircumferenceChange('thighLeft', e.target.value)}
+                />
+                <span className="form-sublabel">Coxa Esquerda</span>
               </div>
             </div>
             
