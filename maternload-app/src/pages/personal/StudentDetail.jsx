@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
-import { getStudentById, getStudentRecords } from '../../services/supabase'
+import { getStudentById, getStudentRecords, getBodyMeasurements } from '../../services/supabase'
 import { useMetrics } from '../../hooks/useMetrics'
 import { useGestationalAge } from '../../hooks/useGestationalAge'
 import { PersonalLayout } from '../../components/layout/PersonalLayout'
