@@ -133,7 +133,6 @@ export function WorkoutLog() {
   const [fetching, setFetching] = useState(!!recordId)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState(false)
-  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
 
   const [form, setForm] = useState({
     workout_date: new Date().toISOString().split('T')[0],
@@ -157,12 +156,13 @@ export function WorkoutLog() {
 
   useEffect(() => {
     if (recordId) {
-      loadRecord()
+      loadRecordData()
     }
   }, [recordId])
 
-  const loadRecord = async () => {
+  const loadRecordData = async () => {
     try {
+      setFetching(true)
       const data = await getRecordById(recordId)
       if (data) {
         setForm({
@@ -186,7 +186,7 @@ export function WorkoutLog() {
         })
       }
     } catch (err) {
-      setError('Erro ao carregar os dados do treino.')
+      setError('Erro ao carregar o treino.')
     } finally {
       setFetching(false)
     }
@@ -194,6 +194,7 @@ export function WorkoutLog() {
 
   const totalMinutes = (Number(form.cardio_minutes) || 0) + (Number(form.strength_minutes) || 0)
   const setField = (name, value) => setForm(prev => ({ ...prev, [name]: value }))
+  const hasAnyAlert = form.alert_bleeding || form.alert_dizziness || form.alert_fluid_loss || form.alert_pelvic_pain
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -245,7 +246,7 @@ export function WorkoutLog() {
   }
 
   const handleDelete = async () => {
-    if (!window.confirm('Tem certeza que deseja excluir este treino? Esta ação não pode ser desfeita.')) return
+    if (!window.confirm('Tem certeza que deseja excluir este treino?')) return
     setLoading(true)
     try {
       await deleteDailyRecord(recordId)
@@ -254,6 +255,16 @@ export function WorkoutLog() {
       setError('Erro ao excluir treino.')
       setLoading(false)
     }
+  }
+
+  if (fetching) {
+    return (
+      <StudentLayout>
+        <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div className="spinner" />
+        </div>
+      </StudentLayout>
+    )
   }
 
   if (success) {
@@ -274,7 +285,7 @@ export function WorkoutLog() {
             {recordId ? 'Treino Atualizado!' : 'Treino Registrado!'}
           </h2>
           <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)' }}>
-            Ótimo trabalho! Seus dados foram salvos com sucesso.
+            Seus dados foram salvos com sucesso.
           </p>
         </div>
       </StudentLayout>
@@ -291,26 +302,18 @@ export function WorkoutLog() {
               className="btn btn-ghost btn-sm"
               style={{ marginBottom: 'var(--space-2)', padding: '0.25rem 0.5rem' }}
             >
-              <ArrowLeft size={14} /> Voltar ao Histórico
+              <ArrowLeft size={14} /> Voltar
             </button>
           )}
           <h1 style={{ fontSize: 'var(--font-size-xl)', fontWeight: 800 }}>
             {recordId ? 'Editar Treino' : 'Registrar Treino'}
           </h1>
-          <p style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)', marginTop: '4px' }}>
-            {recordId 
-              ? 'Corrija as informações abaixo e clique em Atualizar.'
-              : 'Preencha com cuidado — seus dados ajudam seu treinador a cuidar melhor de você! 💛'
-            }
-          </p>
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-5)' }}>
-
-          {/* Data */}
           <div className="card card-sm">
             <div className="form-group">
-              <label className="form-label" htmlFor="workout-date">Data do Treino</label>
+              <label className="form-label" htmlFor="workout-date">Data</label>
               <input
                 id="workout-date"
                 type="date"
@@ -323,264 +326,108 @@ export function WorkoutLog() {
             </div>
           </div>
 
-          {/* Tipo de Treino */}
           <div className="card card-sm">
-            <div className="form-group">
-              <label className="form-label">Tipo de Treino</label>
-              <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
-                {['Cardio', 'Força', 'Misto'].map(type => (
-                  <button
-                    key={type}
-                    type="button"
-                    id={`workout-type-${type.toLowerCase()}`}
-                    onClick={() => {
-                      setField('workout_type', type)
-                      // Limpa os campos que não serão utilizados
-                      if (type === 'Cardio') setField('strength_minutes', '')
-                      if (type === 'Força') {
-                        setField('cardio_minutes', '')
-                        setField('cardio_description', '')
-                      }
-                    }}
-                    style={{
-                      flex: 1, padding: 'var(--space-3)', borderRadius: 'var(--radius-md)',
-                      border: `2px solid ${form.workout_type === type ? 'var(--color-secondary)' : 'var(--color-border)'}`,
-                      background: form.workout_type === type ? 'rgba(46,139,122,0.08)' : 'var(--color-surface)',
-                      color: form.workout_type === type ? 'var(--color-secondary)' : 'var(--color-text-secondary)',
-                      fontWeight: 700, fontSize: 'var(--font-size-sm)', cursor: 'pointer',
-                      transition: 'all var(--transition-fast)'
-                    }}
-                  >
-                    {type === 'Cardio' ? '🏃' : type === 'Força' ? '💪' : '⚡'} {type}
-                  </button>
-                ))}
-              </div>
+            <label className="form-label">Tipo de Treino</label>
+            <div style={{ display: 'flex', gap: 'var(--space-2)' }}>
+              {['Cardio', 'Força', 'Misto'].map(type => (
+                <button
+                  key={type}
+                  type="button"
+                  onClick={() => {
+                    setField('workout_type', type)
+                    if (type === 'Cardio') setField('strength_minutes', '')
+                    if (type === 'Força') {
+                      setField('cardio_minutes', '')
+                      setField('cardio_description', '')
+                    }
+                  }}
+                  style={{
+                    flex: 1, padding: 'var(--space-3)', borderRadius: 'var(--radius-md)',
+                    border: `2px solid ${form.workout_type === type ? 'var(--color-secondary)' : 'var(--color-border)'}`,
+                    background: form.workout_type === type ? 'rgba(46,139,122,0.08)' : 'var(--color-surface)',
+                    color: form.workout_type === type ? 'var(--color-secondary)' : 'var(--color-text-secondary)',
+                    fontWeight: 700, fontSize: 'var(--font-size-sm)', cursor: 'pointer'
+                  }}
+                >
+                  {type}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Duração */}
           <div className="card card-sm">
-            <div style={{ fontWeight: 700, marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-              <Heart size={16} color="var(--color-secondary)" /> Duração do Treino
-            </div>
+            <div style={{ fontWeight: 700, marginBottom: 'var(--space-4)' }}>Duração (minutos)</div>
             <div style={{ display: 'grid', gridTemplateColumns: form.workout_type === 'Misto' ? '1fr 1fr' : '1fr', gap: 'var(--space-4)' }}>
               {(form.workout_type === 'Cardio' || form.workout_type === 'Misto') && (
                 <div className="form-group">
-                  <label className="form-label" htmlFor="cardio-minutes">Cardio (min)</label>
-                  <input
-                    id="cardio-minutes"
-                    type="number"
-                    min="0"
-                    max="180"
-                    className="form-input"
-                    value={form.cardio_minutes}
-                    onChange={e => setField('cardio_minutes', e.target.value)}
-                  />
+                  <label className="form-label">Cardio</label>
+                  <input type="number" className="form-input" value={form.cardio_minutes} onChange={e => setField('cardio_minutes', e.target.value)} />
                 </div>
               )}
               {(form.workout_type === 'Força' || form.workout_type === 'Misto') && (
                 <div className="form-group">
-                  <label className="form-label" htmlFor="strength-minutes">Força (min)</label>
-                  <input
-                    id="strength-minutes"
-                    type="number"
-                    min="0"
-                    max="180"
-                    className="form-input"
-                    value={form.strength_minutes}
-                    onChange={e => setField('strength_minutes', e.target.value)}
-                  />
+                  <label className="form-label">Força</label>
+                  <input type="number" className="form-input" value={form.strength_minutes} onChange={e => setField('strength_minutes', e.target.value)} />
                 </div>
               )}
             </div>
-            
-            <div style={{
-              marginTop: 'var(--space-4)', padding: 'var(--space-3)',
-              background: 'rgba(46,139,122,0.08)', borderRadius: 'var(--radius-md)',
-              textAlign: 'center'
-            }}>
-              <span style={{ fontWeight: 700, color: 'var(--color-secondary)' }}>
-                ⏱ Total: {totalMinutes} minutos
-              </span>
-            </div>
-
-            {(form.workout_type === 'Cardio' || form.workout_type === 'Misto') && (
-              <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
-                <label className="form-label" htmlFor="cardio-desc">Qual cardio foi feito?</label>
-                <input
-                  id="cardio-desc"
-                  type="text"
-                  className="form-input"
-                  placeholder="Ex: Caminhada, Bicicleta estacionária..."
-                  value={form.cardio_description}
-                  onChange={e => setField('cardio_description', e.target.value)}
-                />
-              </div>
-            )}
-
-            <div className="form-group" style={{ marginTop: 'var(--space-4)' }}>
-              <label className="form-label" htmlFor="avg-hr">FC Média (BPM) — opcional</label>
-              <input
-                id="avg-hr"
-                type="number"
-                min="60"
-                max="220"
-                className="form-input"
-                placeholder="Ex: 140"
-                value={form.avg_heart_rate}
-                onChange={e => setField('avg_heart_rate', e.target.value)}
-              />
-            </div>
           </div>
 
-          {/* RPE Slider */}
+          {(form.workout_type === 'Cardio' || form.workout_type === 'Misto') && (
+            <div className="card card-sm">
+              <label className="form-label">Qual cardio?</label>
+              <input type="text" className="form-input" value={form.cardio_description} onChange={e => setField('cardio_description', e.target.value)} />
+            </div>
+          )}
+
           <div className="card card-sm">
             <RPESlider value={form.rpe} onChange={v => setField('rpe', v)} />
           </div>
 
-          {/* Talk Test */}
           <div className="card card-sm">
-            <div style={{ fontWeight: 700, marginBottom: 'var(--space-3)' }}>
-              💬 Talk Test — você conseguia conversar durante o treino?
-            </div>
+            <label className="form-label">Talk Test</label>
             <div className="toggle-group">
-              <button
-                id="talk-test-yes"
-                type="button"
-                className={`toggle-btn ${form.talk_test ? 'active-success' : ''}`}
-                onClick={() => setField('talk_test', true)}
-              >
-                <CheckCircle size={24} />
-                Sim, conseguia conversar
-              </button>
-              <button
-                id="talk-test-no"
-                type="button"
-                className={`toggle-btn ${!form.talk_test ? 'active-danger' : ''}`}
-                onClick={() => setField('talk_test', false)}
-              >
-                <XCircle size={24} />
-                Não, estava sem fôlego
-              </button>
+              <button type="button" className={`toggle-btn ${form.talk_test ? 'active-success' : ''}`} onClick={() => setField('talk_test', true)}>Sim</button>
+              <button type="button" className={`toggle-btn ${!form.talk_test ? 'active-danger' : ''}`} onClick={() => setField('talk_test', false)}>Não</button>
             </div>
           </div>
 
-          {/* Hooper Index */}
           <div className="card card-sm">
-            <div style={{ fontWeight: 700, marginBottom: 'var(--space-4)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-              🧠 Como você está se sentindo?
-              <span style={{ fontSize: 'var(--font-size-xs)', fontWeight: 400, color: 'var(--color-text-muted)' }}>
-                (1 = Ótimo, 7 = Péssimo)
-              </span>
-            </div>
+            <div style={{ fontWeight: 700, marginBottom: 'var(--space-4)' }}>Índice de Hooper</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              <HooperSlider label="Sono" icon={Moon} value={form.hooper_sleep} id="hooper-sleep"
-                onChange={v => setField('hooper_sleep', v)} />
-              <HooperSlider label="Fadiga" icon={Zap} value={form.hooper_fatigue} id="hooper-fatigue"
-                onChange={v => setField('hooper_fatigue', v)} />
-              <HooperSlider label="Estresse" icon={Brain} value={form.hooper_stress} id="hooper-stress"
-                onChange={v => setField('hooper_stress', v)} />
-              <HooperSlider label="Dor Muscular" icon={Dumbbell} value={form.hooper_muscle_pain} id="hooper-muscle"
-                onChange={v => setField('hooper_muscle_pain', v)} />
-            </div>
-            <div style={{
-              marginTop: 'var(--space-4)', padding: 'var(--space-3)',
-              background: 'var(--color-surface-secondary)', borderRadius: 'var(--radius-md)',
-              display: 'flex', justifyContent: 'space-between', alignItems: 'center'
-            }}>
-              <span style={{ fontSize: 'var(--font-size-sm)', fontWeight: 600 }}>Hooper Total</span>
-              <span style={{
-                fontWeight: 800, fontSize: 'var(--font-size-lg)',
-                color: (form.hooper_sleep + form.hooper_fatigue + form.hooper_stress + form.hooper_muscle_pain) > 20
-                  ? 'var(--color-danger)' : (form.hooper_sleep + form.hooper_fatigue + form.hooper_stress + form.hooper_muscle_pain) > 14
-                    ? 'var(--color-warning)' : 'var(--color-success)'
-              }}>
-                {form.hooper_sleep + form.hooper_fatigue + form.hooper_stress + form.hooper_muscle_pain} / 28
-              </span>
+              <HooperSlider label="Sono" icon={Moon} value={form.hooper_sleep} onChange={v => setField('hooper_sleep', v)} />
+              <HooperSlider label="Fadiga" icon={Zap} value={form.hooper_fatigue} onChange={v => setField('hooper_fatigue', v)} />
+              <HooperSlider label="Estresse" icon={Brain} value={form.hooper_stress} onChange={v => setField('hooper_stress', v)} />
+              <HooperSlider label="Dor" icon={Dumbbell} value={form.hooper_muscle_pain} onChange={v => setField('hooper_muscle_pain', v)} />
             </div>
           </div>
 
-          {/* Sinais de Alerta */}
-          <div className="card card-sm" style={{ border: hasAnyAlert ? '2px solid var(--color-danger)' : '1px solid var(--color-border-light)' }}>
-            <div style={{ fontWeight: 700, marginBottom: 'var(--space-3)', display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
-              <AlertTriangle size={18} color={hasAnyAlert ? 'var(--color-danger)' : 'var(--color-text-muted)'} />
-              Sinais de Alerta
-            </div>
-            <p style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', marginBottom: 'var(--space-4)', lineHeight: 1.5 }}>
-              Toque em SIM se sentiu qualquer um dos sintomas abaixo durante ou após o treino.
-              Em caso de dúvida, marque SIM e avise seu treinador.
-            </p>
+          <div className="card card-sm" style={{ border: hasAnyAlert ? '2px solid var(--color-danger)' : '1px solid var(--color-border)' }}>
+            <div style={{ fontWeight: 700, marginBottom: 'var(--space-3)' }}>Sinais de Alerta</div>
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-3)' }}>
-              <AlertToggle id="alert-bleeding" label="Sangramento" emoji="🩸"
-                checked={form.alert_bleeding} onChange={v => setField('alert_bleeding', v)} />
-              <AlertToggle id="alert-dizziness" label="Tontura" emoji="😵"
-                checked={form.alert_dizziness} onChange={v => setField('alert_dizziness', v)} />
-              <AlertToggle id="alert-fluid" label="Perda de Líquido" emoji="💧"
-                checked={form.alert_fluid_loss} onChange={v => setField('alert_fluid_loss', v)} />
-              <AlertToggle id="alert-pelvic" label="Dor Pélvica/Lombar" emoji="⚠️"
-                checked={form.alert_pelvic_pain} onChange={v => setField('alert_pelvic_pain', v)} />
+              <AlertToggle label="Sangramento" emoji="🩸" checked={form.alert_bleeding} onChange={v => setField('alert_bleeding', v)} />
+              <AlertToggle label="Tontura" emoji="😵" checked={form.alert_dizziness} onChange={v => setField('alert_dizziness', v)} />
+              <AlertToggle label="Líquido" emoji="💧" checked={form.alert_fluid_loss} onChange={v => setField('alert_fluid_loss', v)} />
+              <AlertToggle label="Dor" emoji="⚠️" checked={form.alert_pelvic_pain} onChange={v => setField('alert_pelvic_pain', v)} />
             </div>
-            {hasAnyAlert && (
-              <div className="alert-banner alert-banner-danger" style={{ marginTop: 'var(--space-4)' }}>
-                <AlertTriangle size={16} />
-                Avise seu treinador sobre estes sintomas!
-              </div>
-            )}
           </div>
 
-          {/* Notas */}
           <div className="card card-sm">
-            <div className="form-group">
-              <label className="form-label" htmlFor="notes">Observações (opcional)</label>
-              <textarea
-                id="notes"
-                className="form-input"
-                placeholder="Como foi o treino? Alguma observação para o seu treinador?"
-                value={form.notes}
-                onChange={e => setField('notes', e.target.value)}
-                rows={3}
-                style={{ resize: 'vertical' }}
-              />
-            </div>
+            <label className="form-label">Notas</label>
+            <textarea className="form-input" value={form.notes} onChange={e => setField('notes', e.target.value)} rows={3} />
           </div>
 
-          {error && (
-            <div style={{
-              background: 'var(--color-danger-bg)', color: 'var(--color-danger)',
-              padding: 'var(--space-4)', borderRadius: 'var(--radius-md)',
-              fontSize: 'var(--font-size-sm)', fontWeight: 500,
-              display: 'flex', alignItems: 'center', gap: 'var(--space-2)'
-            }}>
-              <AlertTriangle size={16} /> {error}
-            </div>
-          )}
+          {error && <div className="alert-banner alert-banner-danger">{error}</div>}
 
-          <button
-            id="submit-workout"
-            type="submit"
-            className="btn btn-secondary btn-lg btn-full"
-            disabled={loading || totalMinutes === 0}
-          >
-            {loading ? (
-              <><div className="spinner" style={{ width: 18, height: 18, borderWidth: 2 }} /> Salvando...</>
-            ) : (
-              <>{recordId ? <Save size={18} /> : <Save size={18} />} {recordId ? 'Atualizar Treino' : 'Salvar Treino'}</>
-            )}
+          <button type="submit" className="btn btn-secondary btn-lg btn-full" disabled={loading || totalMinutes === 0}>
+            {loading ? 'Salvando...' : (recordId ? 'Atualizar' : 'Salvar')}
           </button>
 
           {recordId && (
-            <button
-              type="button"
-              onClick={handleDelete}
-              className="btn btn-ghost btn-full"
-              style={{ color: 'var(--color-danger)', border: '1px solid var(--color-danger-bg)', marginTop: '-8px' }}
-              disabled={loading}
-            >
+            <button type="button" onClick={handleDelete} className="btn btn-ghost btn-full" style={{ color: 'var(--color-danger)' }} disabled={loading}>
               <Trash2 size={18} /> Excluir Treino
             </button>
           )}
-
-          <div style={{ height: 'var(--space-4)' }} />
         </form>
       </div>
     </StudentLayout>
