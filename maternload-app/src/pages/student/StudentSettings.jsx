@@ -106,7 +106,7 @@ export function StudentSettings() {
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 'var(--space-4)' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-6)' }}>
                 <div className="form-group">
                   <label className="form-label" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                     <Calendar size={14} /> Nasc. (Idade)
@@ -119,42 +119,39 @@ export function StudentSettings() {
                     onChange={e => setForm(p => ({ ...p, birth_date: e.target.value }))}
                   />
                 </div>
-                
-                <div className="form-group" style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)' }}>
-                  <div style={{ paddingRight: '4px' }}>
-                    <label className="form-label" style={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                      <Calendar size={14} /> Semanas
-                    </label>
+
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--space-4)' }}>
+                  <div className="form-group">
+                    <label className="form-label">Semanas</label>
                     <input
                       type="number"
                       min="0"
                       max="42"
                       className="form-input"
                       value={form.gestationalWeeks}
-                      placeholder="Semanas"
+                      placeholder="0"
                       onChange={e => setForm(p => ({ ...p, gestationalWeeks: e.target.value }))}
                     />
                   </div>
-                  <div>
-                    <label className="form-label" style={{ visibility: 'hidden' }}>
-                      Dias
-                    </label>
+                  <div className="form-group">
+                    <label className="form-label">Dias</label>
                     <input
                       type="number"
                       min="0"
                       max="6"
                       className="form-input"
                       value={form.gestationalDays}
-                      placeholder="Dias"
+                      placeholder="0"
                       onChange={e => setForm(p => ({ ...p, gestationalDays: e.target.value }))}
                     />
                   </div>
                   {(form.gestationalWeeks !== '' || form.gestationalDays !== '') && (
                     <span style={{ 
                       gridColumn: '1 / -1',
-                      marginTop: 'var(--space-2)', 
+                      marginTop: 'calc(-1 * var(--space-2))', 
                       fontSize: 'var(--font-size-xs)',
-                      color: 'var(--color-primary)' 
+                      color: 'var(--color-secondary)',
+                      fontWeight: 600
                     }}>
                       ↳ DPP calculada automaticamente
                     </span>
@@ -200,8 +197,8 @@ export function StudentSettings() {
               </div>
             </div>
 
-            <label className="form-label" style={{ marginBottom: 'var(--space-3)' }}>Circunferências (cm)</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) minmax(0, 1fr)', gap: 'var(--space-4)' }}>
+            <label className="form-label" style={{ marginBottom: 'var(--space-3)', display: 'block' }}>Circunferências (cm)</label>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: 'var(--space-4)' }}>
               <div className="form-group">
                 <input
                   type="number"
@@ -243,11 +240,11 @@ export function StudentSettings() {
                   type="number"
                   step="0.1"
                   className="form-input"
-                  placeholder="Coxa Direita"
+                  placeholder="Coxa Dir."
                   value={form.circumferences?.thighRight || ''}
                   onChange={e => handleCircumferenceChange('thighRight', e.target.value)}
                 />
-                <span className="form-sublabel">Coxa Direita</span>
+                <span className="form-sublabel">Coxa Dir.</span>
               </div>
               
               <div className="form-group">
@@ -255,11 +252,11 @@ export function StudentSettings() {
                   type="number"
                   step="0.1"
                   className="form-input"
-                  placeholder="Coxa Esquerda"
+                  placeholder="Coxa Esq."
                   value={form.circumferences?.thighLeft || ''}
                   onChange={e => handleCircumferenceChange('thighLeft', e.target.value)}
                 />
-                <span className="form-sublabel">Coxa Esquerda</span>
+                <span className="form-sublabel">Coxa Esq.</span>
               </div>
             </div>
             
