@@ -1,12 +1,13 @@
 import React from 'react'
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
-import { LayoutDashboard, PlusCircle, ClipboardList, LogOut, Heart } from 'lucide-react'
+import { LayoutDashboard, PlusCircle, ClipboardList, LogOut, Heart, User } from 'lucide-react'
 
 const navItems = [
   { icon: LayoutDashboard, label: 'Início', to: '/student' },
   { icon: PlusCircle, label: 'Registrar', to: '/student/log' },
   { icon: ClipboardList, label: 'Histórico', to: '/student/history' },
+  { icon: User, label: 'Perfil', to: '/student/settings' },
 ]
 
 export function StudentLayout({ children }) {

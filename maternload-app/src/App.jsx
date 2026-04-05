@@ -13,6 +13,7 @@ import { PersonalReports } from './pages/personal/PersonalReports'
 import { StudentDashboard } from './pages/student/StudentDashboard'
 import { WorkoutLog } from './pages/student/WorkoutLog'
 import { StudentHistory } from './pages/student/StudentHistory'
+import { StudentSettings } from './pages/student/StudentSettings'
 
 function RoleRedirect() {
   const { profile, loading } = useAuth()
@@ -105,6 +106,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRole="gestante">
                 <StudentHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/settings"
+            element={
+              <ProtectedRoute allowedRole="gestante">
+                <StudentSettings />
               </ProtectedRoute>
             }
           />

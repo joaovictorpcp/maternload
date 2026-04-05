@@ -213,6 +213,51 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
           </View>
         </View>
 
+        {/* ─── MEDIDAS CORPORAIS ─────────────────────────── */}
+        {(student.weight || student.height || student.circumferences?.abdomen) && (
+          <View style={[styles.infoBox, { borderLeftColor: '#38A169', marginBottom: 18 }]}>
+            <Text style={styles.infoTitle}>Medidas Corporais</Text>
+            <View style={styles.infoGrid}>
+              {student.weight && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Peso Atual</Text>
+                  <Text style={styles.infoValue}>{student.weight} kg</Text>
+                </View>
+              )}
+              {student.height && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Altura</Text>
+                  <Text style={styles.infoValue}>{student.height} m</Text>
+                </View>
+              )}
+              {student.circumferences?.abdomen && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Abdômen</Text>
+                  <Text style={styles.infoValue}>{student.circumferences.abdomen} cm</Text>
+                </View>
+              )}
+              {student.circumferences?.hip && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Quadril</Text>
+                  <Text style={styles.infoValue}>{student.circumferences.hip} cm</Text>
+                </View>
+              )}
+              {student.circumferences?.thigh && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Coxa</Text>
+                  <Text style={styles.infoValue}>{student.circumferences.thigh} cm</Text>
+                </View>
+              )}
+              {student.circumferences?.thorax && (
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Tórax</Text>
+                  <Text style={styles.infoValue}>{student.circumferences.thorax} cm</Text>
+                </View>
+              )}
+            </View>
+          </View>
+        )}
+
         {/* ─── SEÇÃO 1: VOLUME DE TREINAMENTO ────────────────────── */}
         <Text style={styles.sectionTitle}>1. Volume de Treinamento (ACOG)</Text>
 
