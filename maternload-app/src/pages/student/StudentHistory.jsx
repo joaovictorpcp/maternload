@@ -14,6 +14,7 @@ function WorkoutTypeIcon({ type }) {
 
 export function StudentHistory() {
   const { profile } = useAuth()
+  const navigate = useNavigate()
   const [records, setRecords] = useState([])
   const [loading, setLoading] = useState(true)
 
