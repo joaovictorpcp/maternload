@@ -117,6 +117,18 @@ const styles = StyleSheet.create({
     borderRadius: 4, borderWidth: 1, borderColor: '#68D391'
   },
   okBadgeText: { fontSize: 9, color: '#38A169', fontFamily: 'Helvetica-Bold' },
+
+  // Referências e Glossário
+  appendixTitle: { fontSize: 14, fontFamily: 'Helvetica-Bold', color: '#1A4A6B', marginBottom: 12, marginTop: 10, textTransform: 'uppercase' },
+  glossaryItem: { marginBottom: 6, flexDirection: 'row', alignItems: 'flex-start' },
+  glossaryTerm: { fontSize: 9, fontFamily: 'Helvetica-Bold', color: '#2E8B7A', width: 70 },
+  glossaryDesc: { fontSize: 9, color: '#4A5568', flex: 1, lineHeight: 1.4 },
+  
+  refTable: { marginTop: 8, marginBottom: 20, borderWidth: 1, borderColor: '#E2E8F0', borderRadius: 4 },
+  refTableHeader: { flexDirection: 'row', backgroundColor: '#F8FAFC', padding: 6, borderBottomWidth: 1, borderBottomColor: '#E2E8F0' },
+  refHeaderCell: { flex: 1, fontSize: 8, fontFamily: 'Helvetica-Bold', color: '#1A4A6B' },
+  refTableRow: { flexDirection: 'row', padding: 6, borderBottomWidth: 1, borderBottomColor: '#F1F5F9' },
+  refTableCell: { flex: 1, fontSize: 8, color: '#4A5568' },
 })
 
 // ─── Componente do Documento PDF ──────────────────────────────────
@@ -150,6 +162,20 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
   // Últimas 6 semanas com dados
   const weeksWithData = metrics.weeklyData.filter(w => w.sessions > 0).slice(-8)
 
+  const Footer = () => (
+    <View style={styles.footer} fixed>
+      <View>
+        <Text style={styles.footerText}>MaternLoad — Sistema de Controle de Carga para Gestantes</Text>
+        <Text style={[styles.footerText, { marginTop: 2 }]}>Documento gerado em {emissionDate}</Text>
+      </View>
+      <View style={styles.footerSignature}>
+        <View style={styles.signatureLine} />
+        <Text style={styles.signatureText}>João Victor Pinheiro Coelho Pedrosa</Text>
+        <Text style={styles.signatureSubtext}>Personal Trainer — CREF: _______________</Text>
+      </View>
+    </View>
+  )
+
   return (
     <Document title={`Laudo Clínico — ${student.full_name}`}>
       <Page size="A4" style={styles.page}>
@@ -174,11 +200,11 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
 
         {/* ─── TÍTULO DO DOCUMENTO ───────────────────────────────── */}
         <Text style={styles.docTitle}>Laudo de Controle de Carga de Treinamento</Text>
-        <Text style={styles.docSubtitle}>Documento confidencial — uso exclusivo do profissional e da paciente</Text>
+        <Text style={styles.docSubtitle}>Documento confidencial — uso exclusivo do profissional e da aluna</Text>
 
-        {/* ─── IDENTIFICAÇÃO DA PACIENTE ─────────────────────────── */}
-        <View style={styles.infoBox}>
-          <Text style={styles.infoTitle}>Identificação da Paciente</Text>
+        {/* ─── IDENTIFICAÇÃO DA ALUNA ─────────────────────────── */}
+        <View style={styles.infoBox} wrap={false}>
+          <Text style={styles.infoTitle}>Identificação da Aluna</Text>
           <View style={styles.infoGrid}>
             <View style={styles.infoItem}>
               <Text style={styles.infoLabel}>Nome Completo</Text>
@@ -215,7 +241,7 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
 
         {/* ─── MEDIDAS CORPORAIS ─────────────────────────── */}
         {(student.weight || student.height || student.circumferences?.abdomen) && (
-          <View style={[styles.infoBox, { borderLeftColor: '#38A169', marginBottom: 18 }]}>
+          <View style={[styles.infoBox, { borderLeftColor: '#38A169', marginBottom: 18 }]} wrap={false}>
             <Text style={styles.infoTitle}>Medidas Corporais</Text>
             <View style={styles.infoGrid}>
               {student.weight && (
@@ -265,52 +291,54 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
         )}
 
         {/* ─── SEÇÃO 1: VOLUME DE TREINAMENTO ────────────────────── */}
-        <Text style={styles.sectionTitle}>1. Volume de Treinamento (ACOG)</Text>
+        <View wrap={false}>
+          <Text style={styles.sectionTitle}>1. Volume de Treinamento (ACOG)</Text>
 
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Volume Semana Atual</Text>
-            <Text style={styles.statValue}>{metrics.weeklyVolume}</Text>
-            <Text style={styles.statUnit}>minutos</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>Volume Semana Atual</Text>
+              <Text style={styles.statValue}>{metrics.weeklyVolume}</Text>
+              <Text style={styles.statUnit}>minutos</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>Meta ACOG</Text>
+              <Text style={styles.statValue}>150</Text>
+              <Text style={styles.statUnit}>min/semana</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>% Meta Atingida</Text>
+              <Text style={[styles.statValue, { color: metrics.acogPercent >= 100 ? '#38A169' : '#2E8B7A' }]}>
+                {metrics.acogPercent}%
+              </Text>
+              <Text style={styles.statUnit}>{metrics.acogPercent >= 100 ? '✓ Atingida' : 'Em progresso'}</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>Média Semanal</Text>
+              <Text style={styles.statValue}>{avgWeeklyVolume}</Text>
+              <Text style={styles.statUnit}>min/semana</Text>
+            </View>
           </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Meta ACOG</Text>
-            <Text style={styles.statValue}>150</Text>
-            <Text style={styles.statUnit}>min/semana</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>% Meta Atingida</Text>
-            <Text style={[styles.statValue, { color: metrics.acogPercent >= 100 ? '#38A169' : '#2E8B7A' }]}>
-              {metrics.acogPercent}%
-            </Text>
-            <Text style={styles.statUnit}>{metrics.acogPercent >= 100 ? '✓ Atingida' : 'Em progresso'}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Média Semanal</Text>
-            <Text style={styles.statValue}>{avgWeeklyVolume}</Text>
-            <Text style={styles.statUnit}>min/semana</Text>
-          </View>
-        </View>
 
-        {/* Volume progress */}
-        <View style={styles.progressContainer}>
-          <View style={styles.progressLabel}>
-            <Text style={styles.progressLabelText}>Meta ACOG — Semana Atual</Text>
-            <Text style={[styles.progressLabelText, { fontFamily: 'Helvetica-Bold' }]}>
-              {metrics.weeklyVolume} / 150 min ({metrics.acogPercent}%)
-            </Text>
-          </View>
-          <View style={styles.progressBar}>
-            <View style={[styles.progressFill, {
-              width: `${Math.min(metrics.acogPercent, 100)}%`,
-              backgroundColor: metrics.acogPercent >= 100 ? '#38A169' : '#2E8B7A'
-            }]} />
+          {/* Volume progress */}
+          <View style={styles.progressContainer}>
+            <View style={styles.progressLabel}>
+              <Text style={styles.progressLabelText}>Meta ACOG — Semana Atual</Text>
+              <Text style={[styles.progressLabelText, { fontFamily: 'Helvetica-Bold' }]}>
+                {metrics.weeklyVolume} / 150 min ({metrics.acogPercent}%)
+              </Text>
+            </View>
+            <View style={styles.progressBar}>
+              <View style={[styles.progressFill, {
+                width: `${Math.min(metrics.acogPercent, 100)}%`,
+                backgroundColor: metrics.acogPercent >= 100 ? '#38A169' : '#2E8B7A'
+              }]} />
+            </View>
           </View>
         </View>
 
         {/* Weekly volume table */}
         {weeksWithData.length > 0 && (
-          <View style={styles.table}>
+          <View style={styles.table} wrap={false}>
             <View style={styles.tableHeader}>
               <Text style={styles.tableHeaderCell}>Semana</Text>
               <Text style={styles.tableHeaderCell}>Cardio (min)</Text>
@@ -337,115 +365,125 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
         )}
 
         {/* ─── SEÇÃO 2: PERCEPÇÃO DE ESFORÇO ─────────────────────── */}
-        <Text style={styles.sectionTitle}>2. Percepção de Esforço e Carga Interna</Text>
+        <View wrap={false}>
+          <Text style={styles.sectionTitle}>2. Percepção de Esforço e Carga Interna</Text>
 
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>RPE Médio (7 dias)</Text>
-            <Text style={[styles.statValue, {
-              color: metrics.avgRPE >= 8 ? '#E53E3E' : metrics.avgRPE >= 6 ? '#D97706' : '#2E8B7A'
-            }]}>{metrics.avgRPE ?? '—'}</Text>
-            <Text style={styles.statUnit}>de 0 a 10</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>sRPE Acumulado</Text>
-            <Text style={styles.statValue}>{metrics.avgLoad}</Text>
-            <Text style={styles.statUnit}>u.a.</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Monotonia</Text>
-            <Text style={[styles.statValue, { color: metrics.monotony > 2 ? '#E53E3E' : '#2E8B7A' }]}>
-              {metrics.monotony || '—'}
-            </Text>
-            <Text style={styles.statUnit}>{metrics.monotony > 2 ? 'ALTA' : 'Normal'}</Text>
-          </View>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Strain</Text>
-            <Text style={styles.statValue}>{metrics.strain || '—'}</Text>
-            <Text style={styles.statUnit}>u.a.</Text>
+          <View style={styles.statsGrid}>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>RPE Médio (7 dias)</Text>
+              <Text style={[styles.statValue, {
+                color: metrics.avgRPE >= 8 ? '#E53E3E' : metrics.avgRPE >= 6 ? '#D97706' : '#2E8B7A'
+              }]}>{metrics.avgRPE ?? '—'}</Text>
+              <Text style={styles.statUnit}>de 0 a 10</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>sRPE Acumulado</Text>
+              <Text style={styles.statValue}>{metrics.avgLoad}</Text>
+              <Text style={styles.statUnit}>u.a.</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>Monotonia</Text>
+              <Text style={[styles.statValue, { color: metrics.monotony > 2 ? '#E53E3E' : '#2E8B7A' }]}>
+                {metrics.monotony || '—'}
+              </Text>
+              <Text style={styles.statUnit}>{metrics.monotony > 2 ? 'ALTA' : 'Normal'}</Text>
+            </View>
+            <View style={styles.statCard}>
+              <Text style={styles.statLabel}>Strain</Text>
+              <Text style={styles.statValue}>{metrics.strain || '—'}</Text>
+              <Text style={styles.statUnit}>u.a.</Text>
+            </View>
           </View>
         </View>
 
         {/* ─── SEÇÃO 3: BEM-ESTAR (HOOPER INDEX) ─────────────────── */}
-        <Text style={styles.sectionTitle}>3. Bem-Estar — Hooper Index (Média 7 dias)</Text>
+        <View wrap={false}>
+          <Text style={styles.sectionTitle}>3. Bem-Estar — Hooper Index (Média 7 dias)</Text>
 
-        <View style={styles.statsGrid}>
-          <View style={styles.statCard}>
-            <Text style={styles.statLabel}>Hooper Total Médio</Text>
-            <Text style={[styles.statValue, {
-              color: metrics.avgHooper > 20 ? '#E53E3E' : metrics.avgHooper > 14 ? '#D97706' : '#38A169'
-            }]}>{metrics.avgHooper ?? '—'}</Text>
-            <Text style={styles.statUnit}>de 4 a 28</Text>
-          </View>
-          {metrics.hooperComponents && (
-            <>
-              <View style={styles.statCard}>
-                <Text style={styles.statLabel}>Sono</Text>
-                <Text style={styles.statValue}>{metrics.hooperComponents.sleep}</Text>
-                <Text style={styles.statUnit}>de 1 a 7</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statLabel}>Fadiga</Text>
-                <Text style={styles.statValue}>{metrics.hooperComponents.fatigue}</Text>
-                <Text style={styles.statUnit}>de 1 a 7</Text>
-              </View>
-              <View style={styles.statCard}>
-                <Text style={styles.statLabel}>Estresse</Text>
-                <Text style={styles.statValue}>{metrics.hooperComponents.stress}</Text>
-                <Text style={styles.statUnit}>de 1 a 7</Text>
-              </View>
-            </>
-          )}
-        </View>
-        {metrics.hooperComponents && (
           <View style={styles.statsGrid}>
             <View style={styles.statCard}>
-              <Text style={styles.statLabel}>Dor Muscular</Text>
-              <Text style={styles.statValue}>{metrics.hooperComponents.musclePain}</Text>
-              <Text style={styles.statUnit}>de 1 a 7</Text>
+              <Text style={styles.statLabel}>Hooper Total Médio</Text>
+              <Text style={[styles.statValue, {
+                color: metrics.avgHooper > 20 ? '#E53E3E' : metrics.avgHooper > 14 ? '#D97706' : '#38A169'
+              }]}>{metrics.avgHooper ?? '—'}</Text>
+              <Text style={styles.statUnit}>de 4 a 28</Text>
             </View>
+            {metrics.hooperComponents && (
+              <>
+                <View style={styles.statCard}>
+                  <Text style={styles.statLabel}>Sono</Text>
+                  <Text style={styles.statValue}>{metrics.hooperComponents.sleep}</Text>
+                  <Text style={styles.statUnit}>de 1 a 7</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statLabel}>Fadiga</Text>
+                  <Text style={styles.statValue}>{metrics.hooperComponents.fatigue}</Text>
+                  <Text style={styles.statUnit}>de 1 a 7</Text>
+                </View>
+                <View style={styles.statCard}>
+                  <Text style={styles.statLabel}>Estresse</Text>
+                  <Text style={styles.statValue}>{metrics.hooperComponents.stress}</Text>
+                  <Text style={styles.statUnit}>de 1 a 7</Text>
+                </View>
+              </>
+            )}
           </View>
-        )}
+          {metrics.hooperComponents && (
+            <View style={styles.statsGrid}>
+              <View style={styles.statCard}>
+                <Text style={styles.statLabel}>Dor Muscular</Text>
+                <Text style={styles.statValue}>{metrics.hooperComponents.musclePain}</Text>
+                <Text style={styles.statUnit}>de 1 a 7</Text>
+              </View>
+              {/* Espaçadores vazios para alinhar o card de dor muscular à esquerda */}
+              <View style={{ flex: 1 }} />
+              <View style={{ flex: 1 }} />
+              <View style={{ flex: 1 }} />
+            </View>
+          )}
+        </View>
 
         {/* ─── SEÇÃO 4: CHECKLIST DE SEGURANÇA ───────────────────── */}
-        <Text style={styles.sectionTitle}>4. Checklist de Segurança — Sinais de Alerta</Text>
+        <View wrap={false}>
+          <Text style={styles.sectionTitle}>4. Checklist de Segurança — Sinais de Alerta</Text>
 
-        <View>
-          {[
-            { label: 'Sangramento', count: bleedingCount, emoji: '🩸' },
-            { label: 'Tontura', count: dizzinessCount, emoji: '😵' },
-            { label: 'Perda de Líquido Amniótico', count: fluidLossCount, emoji: '💧' },
-            { label: 'Dor Pélvica / Lombar Atípica', count: pelvicPainCount, emoji: '⚠' },
-          ].map(({ label, count }) => (
-            <View key={label} style={styles.checklistItem}>
-              <View style={[styles.checkDot, { backgroundColor: count > 0 ? '#E53E3E' : '#38A169' }]} />
-              <Text style={styles.checkLabel}>{label}</Text>
-              {count > 0 ? (
-                <View style={styles.alertBadge}>
-                  <Text style={styles.alertBadgeText}>{count} ocorrência{count > 1 ? 's' : ''}</Text>
+          <View>
+            {[
+              { label: 'Sangramento', count: bleedingCount, emoji: '🩸' },
+              { label: 'Tontura', count: dizzinessCount, emoji: '😵' },
+              { label: 'Perda de Líquido Amniótico', count: fluidLossCount, emoji: '💧' },
+              { label: 'Dor Pélvica / Lombar Atípica', count: pelvicPainCount, emoji: '⚠' },
+            ].map(({ label, count }) => (
+              <View key={label} style={styles.checklistItem}>
+                <View style={[styles.checkDot, { backgroundColor: count > 0 ? '#E53E3E' : '#38A169' }]} />
+                <Text style={styles.checkLabel}>{label}</Text>
+                {count > 0 ? (
+                  <View style={styles.alertBadge}>
+                    <Text style={styles.alertBadgeText}>{count} ocorrência{count > 1 ? 's' : ''}</Text>
+                  </View>
+                ) : (
+                  <View style={styles.okBadge}>
+                    <Text style={styles.okBadgeText}>Nenhuma ocorrência</Text>
+                  </View>
+                )}
+              </View>
+            ))}
+
+            <View style={styles.checklistItem}>
+              <View style={[styles.checkDot, { backgroundColor: failedTalkTest > 0 ? '#D97706' : '#38A169' }]} />
+              <Text style={styles.checkLabel}>Talk Test — Falhas (sem fôlego durante o treino)</Text>
+              {failedTalkTest > 0 ? (
+                <View style={[styles.alertBadge, { borderColor: '#F6AD55', backgroundColor: '#FFFBEB' }]}>
+                  <Text style={[styles.alertBadgeText, { color: '#D97706' }]}>
+                    {failedTalkTest} falha{failedTalkTest > 1 ? 's' : ''} de {records.length}
+                  </Text>
                 </View>
               ) : (
                 <View style={styles.okBadge}>
-                  <Text style={styles.okBadgeText}>Nenhuma ocorrência</Text>
+                  <Text style={styles.okBadgeText}>100% aprovado</Text>
                 </View>
               )}
             </View>
-          ))}
-
-          <View style={styles.checklistItem}>
-            <View style={[styles.checkDot, { backgroundColor: failedTalkTest > 0 ? '#D97706' : '#38A169' }]} />
-            <Text style={styles.checkLabel}>Talk Test — Falhas (sem fôlego durante o treino)</Text>
-            {failedTalkTest > 0 ? (
-              <View style={[styles.alertBadge, { borderColor: '#F6AD55', backgroundColor: '#FFFBEB' }]}>
-                <Text style={[styles.alertBadgeText, { color: '#D97706' }]}>
-                  {failedTalkTest} falha{failedTalkTest > 1 ? 's' : ''} de {records.length}
-                </Text>
-              </View>
-            ) : (
-              <View style={styles.okBadge}>
-                <Text style={styles.okBadgeText}>100% aprovado</Text>
-              </View>
-            )}
           </View>
         </View>
 
@@ -454,7 +492,7 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
           <View style={{
             backgroundColor: '#FFF5F5', borderRadius: 6, padding: 10, marginTop: 12,
             borderWidth: 1, borderColor: '#FC8181', flexDirection: 'row', gap: 8, alignItems: 'center'
-          }}>
+          }} wrap={false}>
             <Text style={{ fontSize: 14 }}>⚠</Text>
             <Text style={{ fontSize: 9, color: '#E53E3E', flex: 1, lineHeight: 1.4 }}>
               ATENÇÃO: Foram registrados {totalAlerts} evento{totalAlerts > 1 ? 's' : ''} com sinal de alerta no período analisado.
@@ -463,19 +501,104 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
           </View>
         )}
 
-        {/* ─── RODAPÉ / ASSINATURA ───────────────────────────────── */}
-        <View style={styles.footer} fixed>
-          <View>
-            <Text style={styles.footerText}>MaternLoad — Sistema de Controle de Carga para Gestantes</Text>
-            <Text style={[styles.footerText, { marginTop: 2 }]}>Documento gerado em {emissionDate}</Text>
-          </View>
-          <View style={styles.footerSignature}>
-            <View style={styles.signatureLine} />
-            <Text style={styles.signatureText}>João Victor Pinheiro Coelho Pedrosa</Text>
-            <Text style={styles.signatureSubtext}>Personal Trainer — CREF: _______________</Text>
+        <Footer />
+      </Page>
+
+      {/* ─── PÁGINA 2: ANEXO / LEGENDA ───────────────────────────── */}
+      <Page size="A4" style={styles.page}>
+        
+        {/* Cabeçalho Simplificado */}
+        <View style={[styles.header, { marginBottom: 10, paddingBottom: 10 }]}>
+          <View style={styles.headerLeft}>
+            <Text style={styles.appName}>MaternLoad</Text>
+            <Text style={styles.appTagline}>Anexo 1: Glossário e Valores de Referência</Text>
           </View>
         </View>
 
+        {/* Glossário de Siglas */}
+        <Text style={styles.appendixTitle}>1. Glossário de Siglas e Termos Correntes</Text>
+
+        <View style={styles.glossaryItem}>
+          <Text style={styles.glossaryTerm}>ACOG</Text>
+          <Text style={styles.glossaryDesc}>American College of Obstetricians and Gynecologists (Colégio Americano de Obstetras e Ginecologistas). A recomendação atual é de 150 minutos semanais de atividade física moderada.</Text>
+        </View>
+        <View style={styles.glossaryItem}>
+          <Text style={styles.glossaryTerm}>DPP</Text>
+          <Text style={styles.glossaryDesc}>Data Prevista do Parto. Calculada baseada na data da última menstruação ou idade gestacional ultrassonográfica, assumindo 40 semanas de gestação.</Text>
+        </View>
+        <View style={styles.glossaryItem}>
+          <Text style={styles.glossaryTerm}>RPE</Text>
+          <Text style={styles.glossaryDesc}>Percepção Subjetiva de Esforço (Rating of Perceived Exertion). Escala validada científicamente de 0 a 10 que quantifica o quão exaustivo foi um exercício.</Text>
+        </View>
+        <View style={styles.glossaryItem}>
+          <Text style={styles.glossaryTerm}>sRPE</Text>
+          <Text style={styles.glossaryDesc}>Carga Interna da Sessão (Session RPE). Obtido multiplicando-se o RPE pela duração da sessão em minutos. Reflete o impacto fisiológico gerado (medido em "u.a." — Unidades Arbitrárias).</Text>
+        </View>
+        <View style={styles.glossaryItem}>
+          <Text style={styles.glossaryTerm}>Monotonia</Text>
+          <Text style={styles.glossaryDesc}>Mede a variabilidade da carga de treinamento durante os dias. Acima de 2.0 indica baixa variabilidade (treinos monotonos), aumentando o risco de lesões, overtraining ou má adaptação ao estímulo.</Text>
+        </View>
+        <View style={styles.glossaryItem}>
+          <Text style={styles.glossaryTerm}>Strain</Text>
+          <Text style={styles.glossaryDesc}>Tensão global do treinamento. Calculado pela multiplicação da Carga Total x Monotonia. Reflete o quão estressante tem sido a rotina imposta.</Text>
+        </View>
+        <View style={styles.glossaryItem}>
+          <Text style={styles.glossaryTerm}>Hooper Index</Text>
+          <Text style={styles.glossaryDesc}>Índice validado para avaliar o bem-estar nos domínios: Qualidade do Sono, Nível de Estresse, Nível de Fadiga e Dor Muscular de Início Tardio (DMIT).</Text>
+        </View>
+
+        {/* Tabelas de Referência */}
+        <Text style={[styles.appendixTitle, { marginTop: 20 }]}>2. Valores de Referência (Escalas Clínicas)</Text>
+
+        <Text style={styles.sectionTitle}>Escala Hooper Index (Bem-Estar em Geral)</Text>
+        <View style={styles.refTable}>
+          <View style={styles.refTableHeader}>
+            <Text style={styles.refHeaderCell}>Classificação Geral</Text>
+            <Text style={styles.refHeaderCell}>Soma Total (4 a 28)</Text>
+            <Text style={styles.refHeaderCell}>Critério Individual (1 a 7)</Text>
+          </View>
+          <View style={styles.refTableRow}>
+            <Text style={[styles.refTableCell, { color: '#38A169', fontFamily: 'Helvetica-Bold' }]}>Ótimo / Muito Bom</Text>
+            <Text style={styles.refTableCell}>4 a 14 pontos</Text>
+            <Text style={styles.refTableCell}>1 ou 2</Text>
+          </View>
+          <View style={[styles.refTableRow, { backgroundColor: '#F8FAFC' }]}>
+            <Text style={[styles.refTableCell, { color: '#D97706', fontFamily: 'Helvetica-Bold' }]}>Atenção / Risco Moderado</Text>
+            <Text style={styles.refTableCell}>15 a 20 pontos</Text>
+            <Text style={styles.refTableCell}>3 a 5</Text>
+          </View>
+          <View style={[styles.refTableRow, { borderBottomWidth: 0 }]}>
+            <Text style={[styles.refTableCell, { color: '#E53E3E', fontFamily: 'Helvetica-Bold' }]}>Ruim / Alerta Severo</Text>
+            <Text style={styles.refTableCell}>Acima de 20 pontos</Text>
+            <Text style={styles.refTableCell}>6 ou 7</Text>
+          </View>
+        </View>
+
+        <Text style={styles.sectionTitle}>Percepção de Esforço (RPE da Sessão)</Text>
+        <View style={styles.refTable}>
+          <View style={styles.refTableHeader}>
+            <Text style={styles.refHeaderCell}>Zona de Esforço</Text>
+            <Text style={styles.refHeaderCell}>Escala CR-10</Text>
+            <Text style={styles.refHeaderCell}>Descrição Aplicada (Talk Test)</Text>
+          </View>
+          <View style={styles.refTableRow}>
+            <Text style={[styles.refTableCell, { color: '#38A169', fontFamily: 'Helvetica-Bold' }]}>Leve / Recuperativo</Text>
+            <Text style={styles.refTableCell}>0 a 3</Text>
+            <Text style={styles.refTableCell}>Capaz de cantar ou falar confortavelmente.</Text>
+          </View>
+          <View style={[styles.refTableRow, { backgroundColor: '#F8FAFC' }]}>
+            <Text style={[styles.refTableCell, { color: '#2E8B7A', fontFamily: 'Helvetica-Bold' }]}>Moderado</Text>
+            <Text style={styles.refTableCell}>4 a 6</Text>
+            <Text style={styles.refTableCell}>Recomendado. Consegue manter uma conversa com leves pausas.</Text>
+          </View>
+          <View style={[styles.refTableRow, { borderBottomWidth: 0 }]}>
+            <Text style={[styles.refTableCell, { color: '#E53E3E', fontFamily: 'Helvetica-Bold' }]}>Intenso a Máximo</Text>
+            <Text style={styles.refTableCell}>7 a 10</Text>
+            <Text style={styles.refTableCell}>Alerta para o período gestacional. Fôlego prejudicado.</Text>
+          </View>
+        </View>
+
+        <Footer />
       </Page>
     </Document>
   )
