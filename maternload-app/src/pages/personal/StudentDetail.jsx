@@ -49,6 +49,7 @@ export function StudentDetail() {
   const navigate = useNavigate()
   const [student, setStudent] = useState(null)
   const [records, setRecords] = useState([])
+  const [measurements, setMeasurements] = useState([])
   const [loading, setLoading] = useState(true)
   const [editingDueDate, setEditingDueDate] = useState(false)
   const [newDueDate, setNewDueDate] = useState('')
@@ -60,12 +61,14 @@ export function StudentDetail() {
   const loadData = async () => {
     try {
       const threeMonthsAgo = subMonths(new Date(), 3).toISOString().split('T')[0]
-      const [stud, recs] = await Promise.all([
+      const [stud, recs, meas] = await Promise.all([
         getStudentById(studentId),
-        getStudentRecords(studentId, { from: threeMonthsAgo })
+        getStudentRecords(studentId, { from: threeMonthsAgo }),
+        getBodyMeasurements(studentId)
       ])
       setStudent(stud)
       setRecords(recs || [])
+      setMeasurements(meas || [])
       setNewDueDate(stud?.due_date || '')
     } catch (err) {
       console.error(err)
@@ -314,6 +317,56 @@ export function StudentDetail() {
           </div>
         </div>
       )}
+
+      {/* Evolução Corporal Section */}
+      <div className="card" style={{ marginBottom: 'var(--space-8)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 'var(--space-4)' }}>
+          <div className="chart-title" style={{ marginBottom: 0 }}>Histórico de Evolução Corporal</div>
+          <TrendingUp size={20} color="var(--color-secondary)" />
+        </div>
+        
+        {measurements.length === 0 ? (
+          <p style={{ color: 'var(--color-text-muted)', fontSize: 'var(--font-size-sm)', textAlign: 'center', padding: 'var(--space-8)' }}>
+            Nenhuma medição registrada para esta aluna.
+          </p>
+        ) : (
+          <div style={{ overflowX: 'auto' }}>
+            <table className="data-table" style={{ fontSize: '13px' }}>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Peso</th>
+                  <th>Abdômen</th>
+                  <th>Quadril</th>
+                  <th>Coxas</th>
+                  <th>Tórax</th>
+                </tr>
+              </thead>
+              <tbody>
+                {measurements.slice(0, 5).map((m, idx) => {
+                  const prev = measurements[idx + 1]
+                  const getDiff = (cur, old) => {
+                    if (!cur || !old) return null
+                    const d = (cur - old).toFixed(1)
+                    if (d == 0) return null
+                    return <span style={{ color: d > 0 ? 'var(--color-danger)' : 'var(--color-success)', fontSize: '10px', marginLeft: '4px', fontWeight: 700 }}>({d > 0 ? '+' : ''}{d})</span>
+                  }
+                  return (
+                    <tr key={m.id}>
+                      <td style={{ fontWeight: 600 }}>{format(parseISO(m.measured_at), 'dd/MM/yyyy')}</td>
+                      <td>{m.weight}kg {getDiff(m.weight, prev?.weight)}</td>
+                      <td>{m.circumferences?.abdomen}cm {getDiff(m.circumferences?.abdomen, prev?.circumferences?.abdomen)}</td>
+                      <td>{m.circumferences?.hip}cm {getDiff(m.circumferences?.hip, prev?.circumferences?.hip)}</td>
+                      <td>{m.circumferences?.thighRight} / {m.circumferences?.thighLeft}</td>
+                      <td>{m.circumferences?.thorax}cm</td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
 
       {/* Recent Records */}
       <div className="card">

@@ -14,6 +14,7 @@ import { StudentDashboard } from './pages/student/StudentDashboard'
 import { WorkoutLog } from './pages/student/WorkoutLog'
 import { StudentHistory } from './pages/student/StudentHistory'
 import { StudentSettings } from './pages/student/StudentSettings'
+import { StudentEvolution } from './pages/student/StudentEvolution'
 
 function RoleRedirect() {
   const { profile, loading } = useAuth()
@@ -106,6 +107,14 @@ export default function App() {
             element={
               <ProtectedRoute allowedRole="gestante">
                 <StudentHistory />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/evolution"
+            element={
+              <ProtectedRoute allowedRole="gestante">
+                <StudentEvolution />
               </ProtectedRoute>
             }
           />

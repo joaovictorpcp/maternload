@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { StudentLayout } from '../../components/layout/StudentLayout'
 import { useAuth } from '../../contexts/AuthContext'
-import { updateStudentInfo } from '../../services/supabase'
+import { updateStudentInfo, insertBodyMeasurement } from '../../services/supabase'
 import { Save, User, Ruler, FileText, Calendar } from 'lucide-react'
 import { useGestationalAge } from '../../hooks/useGestationalAge'
 
@@ -46,9 +46,10 @@ export function StudentSettings() {
     setSuccess(false)
     try {
       let calculatedDueDate = profile?.due_date || null;
+      const weeks = parseInt(form.gestationalWeeks) || 0;
+      const days = parseInt(form.gestationalDays) || 0;
+
       if (form.gestationalWeeks !== '' || form.gestationalDays !== '') {
-        const weeks = parseInt(form.gestationalWeeks) || 0;
-        const days = parseInt(form.gestationalDays) || 0;
         const totalDays = weeks * 7 + days;
         const daysLeft = 280 - totalDays;
         
@@ -57,6 +58,7 @@ export function StudentSettings() {
         calculatedDueDate = dpp.toISOString().split('T')[0];
       }
 
+      // 1. Atualizar o Perfil (Dados Atuais)
       await updateStudentInfo(profile.id, {
         full_name: form.full_name,
         birth_date: form.birth_date || null,
@@ -65,6 +67,21 @@ export function StudentSettings() {
         height: form.height ? Number(form.height) : null,
         circumferences: form.circumferences
       })
+
+      // 2. Registrar no Histórico (Body Measurements)
+      // Apenas se houver peso ou circunferências preenchidas
+      if (form.weight || Object.values(form.circumferences).some(v => v !== '')) {
+        await insertBodyMeasurement({
+          student_id: profile.id,
+          weight: form.weight ? Number(form.weight) : null,
+          height: form.height ? Number(form.height) : null,
+          circumferences: form.circumferences,
+          gestational_weeks: weeks || age.weeks || 0,
+          gestational_days: days || age.days || 0,
+          measured_at: new Date().toISOString().split('T')[0]
+        })
+      }
+
       await refreshProfile()
       setSuccess(true)
       setTimeout(() => setSuccess(false), 3000)

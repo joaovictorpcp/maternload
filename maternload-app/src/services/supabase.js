@@ -138,3 +138,25 @@ export const getAllStudentsWithAlerts = async () => {
   if (error) throw error
   return data
 }
+
+// ─── BODY MEASUREMENTS HISTORY ────────────────────────────────
+
+export const insertBodyMeasurement = async (measurement) => {
+  const { data, error } = await supabase
+    .from('body_measurements')
+    .insert(measurement)
+    .select()
+    .single()
+  if (error) throw error
+  return data
+}
+
+export const getBodyMeasurements = async (studentId) => {
+  const { data, error } = await supabase
+    .from('body_measurements')
+    .select('*')
+    .eq('student_id', studentId)
+    .order('measured_at', { ascending: false })
+  if (error) throw error
+  return data
+}
