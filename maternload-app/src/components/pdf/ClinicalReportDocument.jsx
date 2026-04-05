@@ -131,6 +131,9 @@ const styles = StyleSheet.create({
   refTableCell: { flex: 1, fontSize: 8, color: '#4A5568' },
 })
 
+// Desativar a separação silábica automática padrão do react-pdf para evitar erros gramaticais e hifens indevidos
+Font.registerHyphenationCallback(word => [word]);
+
 // ─── Componente do Documento PDF ──────────────────────────────────
 export function ClinicalReportDocument({ student, records, metrics, age }) {
   const today = new Date()
@@ -520,31 +523,31 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
 
         <View style={styles.glossaryItem}>
           <Text style={styles.glossaryTerm}>ACOG</Text>
-          <Text style={styles.glossaryDesc}>American College of Obstetricians and Gynecologists (Colégio Americano de Obstetras e Ginecologistas). A recomendação atual é de 150 minutos semanais de atividade física moderada.</Text>
+          <Text style={styles.glossaryDesc}>American College of Obstetricians and Gynecologists (Colégio Americano de Obstetras e Ginecologistas). Recomenda-se a prática de 150 minutos semanais de atividade física de intensidade moderada para gestantes saudáveis sem contraindicações relativas ou absolutas.</Text>
         </View>
         <View style={styles.glossaryItem}>
           <Text style={styles.glossaryTerm}>DPP</Text>
-          <Text style={styles.glossaryDesc}>Data Prevista do Parto. Calculada baseada na data da última menstruação ou idade gestacional ultrassonográfica, assumindo 40 semanas de gestação.</Text>
+          <Text style={styles.glossaryDesc}>Data Prevista do Parto. Estimativa clínica baseada na data da última menstruação ou em exame ultrassonográfico, projetando um termo de 40 semanas gestacionais.</Text>
         </View>
         <View style={styles.glossaryItem}>
           <Text style={styles.glossaryTerm}>RPE</Text>
-          <Text style={styles.glossaryDesc}>Percepção Subjetiva de Esforço (Rating of Perceived Exertion). Escala validada científicamente de 0 a 10 que quantifica o quão exaustivo foi um exercício.</Text>
+          <Text style={styles.glossaryDesc}>Percepção Subjetiva de Esforço (Rating of Perceived Exertion). Escala validada cientificamente (0 a 10) para a quantificação psicofísica da percepção de intensidade e exaustão associada à referida sessão de exercício.</Text>
         </View>
         <View style={styles.glossaryItem}>
           <Text style={styles.glossaryTerm}>sRPE</Text>
-          <Text style={styles.glossaryDesc}>Carga Interna da Sessão (Session RPE). Obtido multiplicando-se o RPE pela duração da sessão em minutos. Reflete o impacto fisiológico gerado (medido em "u.a." — Unidades Arbitrárias).</Text>
+          <Text style={styles.glossaryDesc}>Carga Interna da Sessão (Session RPE). Produto da multiplicação do RPE médio reportado pela duração da sessão (em minutos). O índice mensura de forma apurada o impacto fisiológico e o estresse sistêmico induzido pela sessão de treinamento, expresso em Unidades Arbitrárias (u.a.).</Text>
         </View>
         <View style={styles.glossaryItem}>
           <Text style={styles.glossaryTerm}>Monotonia</Text>
-          <Text style={styles.glossaryDesc}>Mede a variabilidade da carga de treinamento durante os dias. Acima de 2.0 indica baixa variabilidade (treinos monotonos), aumentando o risco de lesões, overtraining ou má adaptação ao estímulo.</Text>
+          <Text style={styles.glossaryDesc}>Índice indicativo da variabilidade da carga de treinamento interdiária. Valores superiores a 2,0 denotam baixa variabilidade (treinamento monótono), condição patológica que eleva significativamente o risco de desenvolvimento de fadiga excessiva, morbidades musculoesqueléticas ou falha crônica na adaptação metabólica.</Text>
         </View>
         <View style={styles.glossaryItem}>
           <Text style={styles.glossaryTerm}>Strain</Text>
-          <Text style={styles.glossaryDesc}>Tensão global do treinamento. Calculado pela multiplicação da Carga Total x Monotonia. Reflete o quão estressante tem sido a rotina imposta.</Text>
+          <Text style={styles.glossaryDesc}>Grau de tensão orgânica induzida. Calculado de forma preditiva através do produto algébrico da Carga de Treinamento e sua referida Monotonia. Este indicador permite dimensionar com exatidão a agressão sistêmica e avaliar a segurança a adaptações crônicas negativas.</Text>
         </View>
         <View style={styles.glossaryItem}>
           <Text style={styles.glossaryTerm}>Hooper Index</Text>
-          <Text style={styles.glossaryDesc}>Índice validado para avaliar o bem-estar nos domínios: Qualidade do Sono, Nível de Estresse, Nível de Fadiga e Dor Muscular de Início Tardio (DMIT).</Text>
+          <Text style={styles.glossaryDesc}>Instrumento clínico validado para a aferição da percepção sinérgica de saúde da aluna e detecção pregressa de overtraining sob os domínios autodeclarados referentes a: Qualidade Reparadora do Sono, Sobrecarga Sistêmica de Estresse, Indução de Fadiga Geral, e níveis algésicos de Dor Muscular de Início Tardio (DMIT).</Text>
         </View>
 
         {/* Tabelas de Referência */}
@@ -582,19 +585,19 @@ export function ClinicalReportDocument({ student, records, metrics, age }) {
             <Text style={styles.refHeaderCell}>Descrição Aplicada (Talk Test)</Text>
           </View>
           <View style={styles.refTableRow}>
-            <Text style={[styles.refTableCell, { color: '#38A169', fontFamily: 'Helvetica-Bold' }]}>Leve / Recuperativo</Text>
+            <Text style={[styles.refTableCell, { color: '#38A169', fontFamily: 'Helvetica-Bold' }]}>Leve / Baixa Exigência</Text>
             <Text style={styles.refTableCell}>0 a 3</Text>
-            <Text style={styles.refTableCell}>Capaz de cantar ou falar confortavelmente.</Text>
+            <Text style={styles.refTableCell}>Volume respiratório perfeitamente controlado. A gestante evidencia a capacidade de formular longo diálogo contínuo de métrica verbal regular.</Text>
           </View>
           <View style={[styles.refTableRow, { backgroundColor: '#F8FAFC' }]}>
             <Text style={[styles.refTableCell, { color: '#2E8B7A', fontFamily: 'Helvetica-Bold' }]}>Moderado</Text>
             <Text style={styles.refTableCell}>4 a 6</Text>
-            <Text style={styles.refTableCell}>Recomendado. Consegue manter uma conversa com leves pausas.</Text>
+            <Text style={styles.refTableCell}>Metabolismo em nível desejado de adaptação de acordo com diretrizes das entidades internacionais vigentes. Permite a emissão de diálogos entre as incursões dos ciclos inspiratórios, com aumento da taxa respiratória.</Text>
           </View>
           <View style={[styles.refTableRow, { borderBottomWidth: 0 }]}>
-            <Text style={[styles.refTableCell, { color: '#E53E3E', fontFamily: 'Helvetica-Bold' }]}>Intenso a Máximo</Text>
+            <Text style={[styles.refTableCell, { color: '#E53E3E', fontFamily: 'Helvetica-Bold' }]}>Intenso a Limiar Crítico</Text>
             <Text style={styles.refTableCell}>7 a 10</Text>
-            <Text style={styles.refTableCell}>Alerta para o período gestacional. Fôlego prejudicado.</Text>
+            <Text style={styles.refTableCell}>Aviso clínico desfavorável não sendo prescrito como abordagem contínua padrão para as características deste público alvo. O esforço cardiorrespiratório máximo afeta severamente a capacidade fonatória.</Text>
           </View>
         </View>
 
