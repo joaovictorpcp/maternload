@@ -95,7 +95,7 @@ export default function App() {
             }
           />
           <Route
-            path="/student/log"
+            path="/student/log/:recordId?"
             element={
               <ProtectedRoute allowedRole="gestante">
                 <WorkoutLog />

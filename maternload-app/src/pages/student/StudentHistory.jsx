@@ -4,7 +4,8 @@ import { getStudentRecords } from '../../services/supabase'
 import { StudentLayout } from '../../components/layout/StudentLayout'
 import { format, parseISO } from 'date-fns'
 import { ptBR } from 'date-fns/locale'
-import { AlertTriangle, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { AlertTriangle, CheckCircle, XCircle, Clock, Edit2 } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 function WorkoutTypeIcon({ type }) {
   const map = { Cardio: '🏃', Força: '💪', Misto: '⚡' }
@@ -75,9 +76,19 @@ export function StudentHistory() {
                       </span>
                     )}
                   </div>
-                  <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', fontWeight: 600 }}>
-                    {format(parseISO(rec.workout_date), "dd 'de' MMM 'de' yyyy", { locale: ptBR })}
-                  </span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+                    <span style={{ fontSize: 'var(--font-size-xs)', color: 'var(--color-text-muted)', fontWeight: 600 }}>
+                      {format(parseISO(rec.workout_date), "dd 'de' MMM 'de' yyyy", { locale: ptBR })}
+                    </span>
+                    <button 
+                      onClick={() => navigate(`/student/log/${rec.id}`)}
+                      className="btn btn-ghost btn-icon btn-sm"
+                      style={{ color: 'var(--color-secondary)' }}
+                      title="Editar Treino"
+                    >
+                      <Edit2 size={14} />
+                    </button>
+                  </div>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 'var(--space-2)' }}>

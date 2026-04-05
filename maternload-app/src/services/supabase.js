@@ -129,6 +129,16 @@ export const deleteDailyRecord = async (recordId) => {
   if (error) throw error
 }
 
+export const getRecordById = async (recordId) => {
+  const { data, error } = await supabase
+    .from('daily_records')
+    .select('*')
+    .eq('id', recordId)
+    .single()
+  if (error) throw error
+  return data
+}
+
 export const getAllStudentsWithAlerts = async () => {
   const { data, error } = await supabase
     .from('daily_records')
